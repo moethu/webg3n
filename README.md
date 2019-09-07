@@ -21,6 +21,7 @@ On the other hand it shifts the bottleneck from the client's rendering capabilit
 
 This implementation comes with a simple webUI, simply go run it and connect to port 8000.
 Once you click connect, a g3n window will appear which is the server side rendering screen.
+[Demo video](https://github.com/moethu/g3nserverside/raw/master/images/demo.mp4)
 
 ![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot01.png "Screenshot")
 
