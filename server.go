@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -88,6 +89,7 @@ func (c *Client) streamWriter() {
 
 // serveWebsocket handles websocket requests from the peer.
 func serveWebsocket(w http.ResponseWriter, r *http.Request) {
+	sessionId := uuid.Must(uuid.NewV4())
 	// upgrade connection to websocket
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
@@ -118,7 +120,7 @@ func serveWebsocket(w http.ResponseWriter, r *http.Request) {
 	var app renderingApp
 	// run 3d application in separate go routine
 	// this is currently not threadafe but it's a single 3d app per socket
-	go load3DApplication(&app, height, width, c_write, c_read, "models/Buggy.glb")
+	go load3DApplication(&app, sessionId.String(), height, width, c_write, c_read, "models/Buggy.glb")
 
 	// run reader and writer in two different go routines
 	// so they can act concurrently

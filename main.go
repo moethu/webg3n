@@ -30,13 +30,13 @@ type RData struct {
 	Stamp time.Time
 }
 
-func load3DApplication(app *renderingApp, h int, w int, write chan []byte, read chan []byte, modelpath string) {
+func load3DApplication(app *renderingApp, sessionId string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
 	a, err := application.Create(application.Options{
-		Title:       "ServerSideTutorial01",
+		Title:       "g3nServerApplication",
 		Width:       w,
 		Height:      h,
 		Fullscreen:  false,
-		LogPrefix:   "ServerSide01",
+		LogPrefix:   sessionId,
 		LogLevel:    logger.DEBUG,
 		TargetFPS:   30,
 		EnableFlags: true,
