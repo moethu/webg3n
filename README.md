@@ -2,7 +2,7 @@
 # g3nserverside
 
 g3nserverside is a GO server side 3D renderer based on the [G3N](https://github.com/g3n/engine) OpenGL engine.
-![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot01.png  =500x)
+![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot01.png)
 
 ## How it works
 
