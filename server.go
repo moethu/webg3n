@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -18,7 +19,7 @@ const (
 )
 
 type Client struct {
-	//hub *Hub
+	app renderingApp
 
 	// The websocket connection.
 	conn *websocket.Conn
@@ -117,10 +118,18 @@ func serveWebsocket(w http.ResponseWriter, r *http.Request) {
 		width = 800
 	}
 
-	var app renderingApp
+	modelPath := "models/"
+	model := r.URL.Query().Get("model")
+	if model == "" {
+		model = "Saw.glb"
+	}
+	if _, err := os.Stat(modelPath + model); os.IsNotExist(err) {
+		model = "Saw.glb"
+	}
+
 	// run 3d application in separate go routine
 	// this is currently not threadafe but it's a single 3d app per socket
-	go load3DApplication(&app, sessionId.String(), height, width, c_write, c_read, "models/Buggy.glb")
+	go load3DApplication(&client.app, sessionId.String(), height, width, c_write, c_read, modelPath+model)
 
 	// run reader and writer in two different go routines
 	// so they can act concurrently
