@@ -7,7 +7,7 @@ g3nserverside is a GO server side 3D renderer based on the [G3N](https://github.
 
 ## How it works
 
-g3nserverside consists of a GO webserver handling sockets to one G3N rendering instance per connection. The G3N application is constantly streaming images (jpeg) and listens for navigation events and commands from the client. The G3N application is reading [GLTF models](https://github.com/KhronosGroup/glTF), the example model is taken from [here](https://github.com/KhronosGroup/glTF-Sample-Models)
+g3nserverside consists of a GO webserver handling sockets to one G3N rendering instance per connection. The G3N application is constantly streaming images (jpeg) and listens for navigation events and commands from the client. The server supports multiple clients at the same time. For each client it will open one socket and spin off a separate 3D engine for rendering. The G3N application is reading [GLTF models](https://github.com/KhronosGroup/glTF), the example model is taken from [here](https://github.com/KhronosGroup/glTF-Sample-Models)
 
 ## Why Server Side Rendering
 
