@@ -2,6 +2,7 @@
 # g3nserverside
 
 g3nserverside is a GO server side 3D renderer based on the [G3N](https://github.com/g3n/engine) OpenGL engine.
+
 ![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot01.png)
 
 ## How it works
@@ -17,6 +18,10 @@ Client and server side renderers have both pros and cons. Depending on your use 
 - The geometry remains on the server and is not transferred to the client
 
 On the other hand it shifts the bottleneck from the client's rendering capabilites to the bandwith.
+
+## Requirements
+
+Requires this modified [G3N engine](https://github.com/moethu/engine) and its [dependencies](https://github.com/moethu/engine#dependencies)
 
 ## Example
 
