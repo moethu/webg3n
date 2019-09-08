@@ -39,12 +39,11 @@ window.addEventListener("load", function(evt) {
         ws.onmessage = function(evt) {
 			if (evt.data.startsWith('{') && evt.data.endsWith('}')){
                 var feedback = JSON.parse(evt.data);
+                if (feedback.action == "loaded"){
+                    document.getElementById("spinner").style.display = 'none';
+                }
                 if (feedback.action == "loading"){
-                    if (feedback.done == true) {
-                        document.getElementById("spinner").style.display = 'none';
-                    } else {
                         document.getElementById("spinner").style.display = 'block';
-                    }
                 }
 				print(evt.data)
 			}else{

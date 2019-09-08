@@ -83,11 +83,10 @@ func (a *renderingApp) nameChildren(p string, n core.INode) {
 type Message struct {
 	Action string `json:"action"`
 	Value  string `json:"value"`
-	Done   bool   `json:"done"`
 }
 
-func (a *renderingApp) sendMessageToClient(action string, value string, done bool) {
-	m := &Message{Action: action, Value: value, Done: done}
+func (a *renderingApp) sendMessageToClient(action string, value string) {
+	m := &Message{Action: action, Value: value}
 	msg_json, err := json.Marshal(m)
 	if err != nil {
 		a.Log().Error(err.Error())
@@ -99,7 +98,7 @@ func (a *renderingApp) sendMessageToClient(action string, value string, done boo
 
 // loadScene loads a gltf file
 func (a *renderingApp) loadScene(fpath string) error {
-	a.sendMessageToClient("loading", fpath, false)
+	a.sendMessageToClient("loading", fpath)
 	// Checks file extension
 	ext := filepath.Ext(fpath)
 	var g *gltf.GLTF
@@ -132,7 +131,7 @@ func (a *renderingApp) loadScene(fpath string) error {
 	a.Scene().Add(n)
 	root := a.Scene().ChildIndex(n)
 	a.nameChildren("/"+strconv.Itoa(root), n)
-	a.sendMessageToClient("loading", fpath, true)
+	a.sendMessageToClient("loaded", fpath)
 	return nil
 }
 
@@ -213,7 +212,7 @@ func (app *renderingApp) selectNode(mx float32, my float32) {
 		object = i[0].Object.GetNode()
 
 		app.Log().Info("selected : %s", object.Name())
-		app.sendMessageToClient("selected", object.Name(), true)
+		app.sendMessageToClient("selected", object.Name())
 		app.changeNodeMaterial(i[0].Object)
 	}
 }
@@ -293,7 +292,7 @@ func (app *renderingApp) commandLoop() {
 			}
 		case "userdata":
 			if node, ok := app.nodeBuffer[cmd.Val]; ok {
-				app.sendMessageToClient("userdata", fmt.Sprintf("%v", node.UserData()), true)
+				app.sendMessageToClient("userdata", fmt.Sprintf("%v", node.UserData()))
 			}
 		case "keydown":
 			kev := window.KeyEvent{Action: window.Press, Mods: 0, Keycode: mapKey(cmd.Val)}
