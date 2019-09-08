@@ -136,10 +136,11 @@ func (app *renderingApp) makeScreenShot() {
 }
 
 type Command struct {
-	X   float32
-	Y   float32
-	Cmd string
-	Val string
+	X     float32
+	Y     float32
+	Cmd   string
+	Val   string
+	Moved bool
 }
 
 // mapMouseButton maps js mouse buttons to window mouse buttons
@@ -245,12 +246,6 @@ func (app *renderingApp) commandLoop() {
 				Action: window.Press,
 				Button: mapMouseButton(cmd.Val)}
 			app.Orbit().OnMouse(&mev)
-
-			// mouse left click
-			if cmd.Val == "0" {
-				app.selectNode(cmd.X, cmd.Y)
-			}
-
 		case "zoom":
 			mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y}
 			app.Orbit().OnScroll(&mev)
@@ -259,6 +254,12 @@ func (app *renderingApp) commandLoop() {
 				Action: window.Release,
 				Button: mapMouseButton(cmd.Val)}
 			app.Orbit().OnMouse(&mev)
+
+			// mouse left click
+			if cmd.Val == "0" && !cmd.Moved {
+				app.selectNode(cmd.X, cmd.Y)
+			}
+
 		case "keydown":
 			kev := window.KeyEvent{Action: window.Press, Mods: 0, Keycode: mapKey(cmd.Val)}
 			app.Orbit().OnKey(&kev)

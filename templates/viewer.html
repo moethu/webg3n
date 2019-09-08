@@ -14,6 +14,7 @@ window.addEventListener("load", function(evt) {
     var output = document.getElementById("output");
     var input = document.getElementById("input");
     var ws;
+    var mouse_moved = false;
 
     var print = function(message) {
         var d = document.createElement("li");
@@ -53,6 +54,7 @@ window.addEventListener("load", function(evt) {
 
 	document.getElementById("canvas").onmousemove = function(evt){
 			if (!ws) {return false;}
+            mouse_moved = true;
 			var rect = evt.target.getBoundingClientRect();
 			var x = (evt.clientX - rect.left); 
 			var y = (evt.clientY - rect.top); 
@@ -75,6 +77,7 @@ window.addEventListener("load", function(evt) {
 	document.getElementById("canvas").onmousedown = function(evt){
 		if (!ws) {return false;}
         evt.preventDefault();
+        mouse_moved = false;
 		var rect = evt.target.getBoundingClientRect();
 		var x = (evt.clientX - rect.left); 
 		var y = (evt.clientY - rect.top); 
@@ -88,7 +91,7 @@ window.addEventListener("load", function(evt) {
 		var rect = evt.target.getBoundingClientRect();
 		var x = (evt.clientX - rect.left); 
 		var y = (evt.clientY - rect.top); 
-		ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}"}`);
+		ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}}`);
 		return false;	
 	}
 
