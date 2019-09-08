@@ -27,7 +27,9 @@ window.addEventListener("load", function(evt) {
         if (ws) {
             return false;
 		}
-		ws = new WebSocket("{{.}}?h=800&w=800");
+        h = document.getElementById("canvas").getAttribute("height");
+        w = document.getElementById("canvas").getAttribute("width");
+		ws = new WebSocket(`{{.}}?h=${h}&w=${w}`);
 		
         ws.onopen = function(evt) {
             print("Connected to Server");
