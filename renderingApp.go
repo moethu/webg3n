@@ -291,6 +291,10 @@ func (app *renderingApp) commandLoop() {
 			for _, node := range app.nodeBuffer {
 				node.SetVisible(true)
 			}
+		case "userdata":
+			if node, ok := app.nodeBuffer[cmd.Val]; ok {
+				app.sendMessageToClient("userdata", fmt.Sprintf("%v", node.UserData()), true)
+			}
 		case "keydown":
 			kev := window.KeyEvent{Action: window.Press, Mods: 0, Keycode: mapKey(cmd.Val)}
 			app.Orbit().OnKey(&kev)
