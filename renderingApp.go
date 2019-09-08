@@ -235,7 +235,10 @@ func (app *renderingApp) commandLoop() {
 		message := <-app.c_commands
 
 		cmd := Command{}
-		_ = json.Unmarshal(message, &cmd)
+		err := json.Unmarshal(message, &cmd)
+		if err != nil {
+			app.Log().Error(err.Error())
+		}
 
 		switch cmd.Cmd {
 		case "":
@@ -274,6 +277,8 @@ func (app *renderingApp) commandLoop() {
 		case "close":
 			app.Log().Info("close")
 			app.Window().SetShouldClose(true)
+		default:
+			app.Log().Info("Unknown Command: " + cmd.Cmd)
 		}
 	}
 }
