@@ -7,9 +7,6 @@ import (
 	"text/template"
 	"time"
 
-	"engine/util/application"
-	"engine/util/logger"
-
 	"github.com/gorilla/websocket"
 )
 
@@ -28,39 +25,6 @@ var upgrader = websocket.Upgrader{}
 type RData struct {
 	Image string
 	Stamp time.Time
-}
-
-func load3DApplication(app *renderingApp, sessionId string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
-	a, err := application.Create(application.Options{
-		Title:       "g3nServerApplication",
-		Width:       w,
-		Height:      h,
-		Fullscreen:  false,
-		LogPrefix:   sessionId,
-		LogLevel:    logger.DEBUG,
-		TargetFPS:   30,
-		EnableFlags: true,
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	app.Application = *a
-	app.Width = w
-	app.Height = h
-	app.c_imagestream = write
-	app.c_commands = read
-	app.jpegQuality = 60
-	app.modelpath = modelpath
-	app.setupScene()
-	go app.commandLoop()
-	err = app.Run()
-	if err != nil {
-		panic(err)
-	}
-
-	app.Log().Info("app was running for %f seconds\n", app.RunSeconds())
 }
 
 // Home route, loading template and serving it

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"g3nserverside/renderer"
 	"log"
 	"net/http"
 	"os"
@@ -19,7 +20,7 @@ const (
 )
 
 type Client struct {
-	app renderingApp
+	app renderer.RenderingApp
 
 	// The websocket connection.
 	conn *websocket.Conn
@@ -129,7 +130,7 @@ func serveWebsocket(w http.ResponseWriter, r *http.Request) {
 
 	// run 3d application in separate go routine
 	// this is currently not threadafe but it's a single 3d app per socket
-	go load3DApplication(&client.app, sessionId.String(), height, width, c_write, c_read, modelPath+model)
+	go renderer.LoadRenderingApp(&client.app, sessionId.String(), height, width, c_write, c_read, modelPath+model)
 
 	// run reader and writer in two different go routines
 	// so they can act concurrently
