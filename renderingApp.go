@@ -35,12 +35,14 @@ type renderingApp struct {
 	selectionBuffer    map[core.INode][]graphic.GraphicMaterial
 	selection_material material.IMaterial
 	modelpath          string
+	nodeBuffer         map[string]*core.Node
 }
 
 // setupScene sets up the current scene
 func (app *renderingApp) setupScene() {
 	app.selection_material = material.NewPhong(math32.NewColor("Red"))
 	app.selectionBuffer = make(map[core.INode][]graphic.GraphicMaterial)
+	app.nodeBuffer = make(map[string]*core.Node)
 
 	app.Gl().ClearColor(1.0, 1.0, 1.0, 1.0)
 
@@ -67,13 +69,14 @@ func (app *renderingApp) setupScene() {
 }
 
 // nameChildren names all gltf nodes by path
-func nameChildren(p string, n core.INode) {
+func (a *renderingApp) nameChildren(p string, n core.INode) {
 	node := n.GetNode()
 	node.SetName(p)
+	a.nodeBuffer[p] = node
 	for _, child := range node.Children() {
 		idx := node.ChildIndex(child)
 		title := p + "/" + strconv.Itoa(idx)
-		nameChildren(title, child)
+		a.nameChildren(title, child)
 	}
 }
 
@@ -128,7 +131,7 @@ func (a *renderingApp) loadScene(fpath string) error {
 
 	a.Scene().Add(n)
 	root := a.Scene().ChildIndex(n)
-	nameChildren("/"+strconv.Itoa(root), n)
+	a.nameChildren("/"+strconv.Itoa(root), n)
 	a.sendMessageToClient("loading", fpath, true)
 	return nil
 }
@@ -280,7 +283,14 @@ func (app *renderingApp) commandLoop() {
 			if cmd.Val == "0" && !cmd.Moved {
 				app.selectNode(cmd.X, cmd.Y)
 			}
-
+		case "hide":
+			if node, ok := app.nodeBuffer[cmd.Val]; ok {
+				node.SetVisible(false)
+			}
+		case "unhide":
+			for _, node := range app.nodeBuffer {
+				node.SetVisible(true)
+			}
 		case "keydown":
 			kev := window.KeyEvent{Action: window.Press, Mods: 0, Keycode: mapKey(cmd.Val)}
 			app.Orbit().OnKey(&kev)
