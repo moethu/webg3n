@@ -77,8 +77,26 @@ func nameChildren(p string, n core.INode) {
 	}
 }
 
+type Message struct {
+	Action string `json:"action"`
+	Value  string `json:"value"`
+	Done   bool   `json:"done"`
+}
+
+func (a *renderingApp) sendMessageToClient(action string, value string, done bool) {
+	m := &Message{Action: action, Value: value, Done: done}
+	msg_json, err := json.Marshal(m)
+	if err != nil {
+		a.Log().Error(err.Error())
+		return
+	}
+	a.Log().Info("sending message: " + string(msg_json))
+	a.c_imagestream <- []byte(string(msg_json))
+}
+
 // loadScene loads a gltf file
 func (a *renderingApp) loadScene(fpath string) error {
+	a.sendMessageToClient("loading", fpath, false)
 	// Checks file extension
 	ext := filepath.Ext(fpath)
 	var g *gltf.GLTF
@@ -111,6 +129,7 @@ func (a *renderingApp) loadScene(fpath string) error {
 	a.Scene().Add(n)
 	root := a.Scene().ChildIndex(n)
 	nameChildren("/"+strconv.Itoa(root), n)
+	a.sendMessageToClient("loading", fpath, true)
 	return nil
 }
 
@@ -191,8 +210,7 @@ func (app *renderingApp) selectNode(mx float32, my float32) {
 		object = i[0].Object.GetNode()
 
 		app.Log().Info("selected : %s", object.Name())
-		info := "{\"selection\":\"" + object.Name() + "\"}"
-		app.c_imagestream <- []byte(info)
+		app.sendMessageToClient("selected", object.Name(), true)
 		app.changeNodeMaterial(i[0].Object)
 	}
 }
