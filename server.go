@@ -121,10 +121,10 @@ func serveWebsocket(w http.ResponseWriter, r *http.Request) {
 	modelPath := "models/"
 	model := r.URL.Query().Get("model")
 	if model == "" {
-		model = "Saw.glb"
+		model = "Cathedral.glb"
 	}
 	if _, err := os.Stat(modelPath + model); os.IsNotExist(err) {
-		model = "Saw.glb"
+		model = "Cathedral.glb"
 	}
 
 	// run 3d application in separate go routine
