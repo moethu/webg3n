@@ -13,6 +13,8 @@ import (
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
+	fs := http.FileServer(http.Dir("static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
 	http.HandleFunc("/webg3n", serveWebsocket)
 	http.HandleFunc("/", home)
 	log.Println("Starting HTTP Server on Port 8000")
@@ -30,5 +32,5 @@ type RData struct {
 // Home route, loading template and serving it
 func home(w http.ResponseWriter, r *http.Request) {
 	viewertemplate := template.Must(template.ParseFiles("templates/viewer.html"))
-	viewertemplate.Execute(w, "ws://"+r.Host+"/webg3n")
+	viewertemplate.Execute(w, r.Host)
 }
