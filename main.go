@@ -1,24 +1,63 @@
 package main
 
 import (
+	"context"
+	"engine/window"
 	"flag"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 	"text/template"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
 
 func main() {
 	flag.Parse()
 	log.SetFlags(0)
-	fs := http.FileServer(http.Dir("static"))
-	http.Handle("/static/", http.StripPrefix("/static/", fs))
-	http.HandleFunc("/webg3n", serveWebsocket)
-	http.HandleFunc("/", home)
+
+	router := gin.Default()
+	port := ":8000"
+	srv := &http.Server{
+		Addr:         port,
+		Handler:      router,
+		ReadTimeout:  600 * time.Second,
+		WriteTimeout: 600 * time.Second,
+	}
+
+	router.Static("/static/", "./static/")
+	router.Any("/webg3n", serveWebsocket)
+	router.GET("/", home)
 	log.Println("Starting HTTP Server on Port 8000")
-	http.ListenAndServe(*addr, nil)
+
+	go func() {
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("listen: %s\n", err)
+		}
+	}()
+
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 5 seconds.
+	quit := make(chan os.Signal, 1)
+	// kill (no param) default send syscanll.SIGTERM
+	// kill -2 is syscall.SIGINT
+	// kill -9 is syscall. SIGKILL but can"t be catch, so don't need add it
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	log.Println("Shutdown Server")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatal("Server Shutdown: ", err)
+	}
+
+	window.DestroyGlfwManager()
+	log.Println("Server exiting")
 }
 
 var addr = flag.String("addr", "0.0.0.0:8000", "http service address")
@@ -30,7 +69,7 @@ type RData struct {
 }
 
 // Home route, loading template and serving it
-func home(w http.ResponseWriter, r *http.Request) {
+func home(c *gin.Context) {
 	viewertemplate := template.Must(template.ParseFiles("templates/viewer.html"))
-	viewertemplate.Execute(w, r.Host)
+	viewertemplate.Execute(c.Writer, c.Request.Host)
 }

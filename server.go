@@ -3,11 +3,11 @@ package main
 import (
 	"g3nserverside/renderer"
 	"log"
-	"net/http"
 	"os"
 	"strconv"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	uuid "github.com/satori/go.uuid"
 )
@@ -90,10 +90,10 @@ func (c *Client) streamWriter() {
 }
 
 // serveWebsocket handles websocket requests from the peer.
-func serveWebsocket(w http.ResponseWriter, r *http.Request) {
+func serveWebsocket(c *gin.Context) {
 	sessionId := uuid.Must(uuid.NewV4())
 	// upgrade connection to websocket
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		log.Println(err)
 		return
@@ -108,19 +108,19 @@ func serveWebsocket(w http.ResponseWriter, r *http.Request) {
 
 	// get scene width and height from url query params
 	// default to 800 if they are not set
-	height, err := strconv.Atoi(r.URL.Query().Get("h"))
+	height, err := strconv.Atoi(c.Request.URL.Query().Get("h"))
 	if err != nil {
 		log.Println(err)
 		height = 800
 	}
-	width, err := strconv.Atoi(r.URL.Query().Get("w"))
+	width, err := strconv.Atoi(c.Request.URL.Query().Get("w"))
 	if err != nil {
 		log.Println(err)
 		width = 800
 	}
 
 	modelPath := "models/"
-	model := r.URL.Query().Get("model")
+	model := c.Request.URL.Query().Get("model")
 	if model == "" {
 		model = "Cathedral.glb"
 	}
