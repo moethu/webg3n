@@ -70,6 +70,6 @@ type RData struct {
 
 // Home route, loading template and serving it
 func home(c *gin.Context) {
-	viewertemplate := template.Must(template.ParseFiles("templates/viewer.html"))
+	viewertemplate := template.Must(template.ParseFiles("templates/webg3n.html"))
 	viewertemplate.Execute(c.Writer, c.Request.Host)
 }
