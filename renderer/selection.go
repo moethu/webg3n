@@ -22,10 +22,12 @@ func (app *RenderingApp) selectNode(mx float32, my float32) {
 	var object *core.Node
 	if len(i) != 0 {
 		object = i[0].Object.GetNode()
-
 		app.Log().Info("selected : %s", object.Name())
 		app.sendMessageToClient("selected", object.Name())
 		app.changeNodeMaterial(i[0].Object)
+	} else {
+		app.sendMessageToClient("selected", "")
+		app.resetSelection()
 	}
 }
 

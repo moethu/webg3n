@@ -1,24 +1,26 @@
+
 let host = document.currentScript.getAttribute('host');
+
 window.addEventListener("load", function(evt) {
-    document.getElementById("spinner").style.display = 'none';
-    var output = document.getElementById("output");
-    var input = document.getElementById("input");
+    var canvas = document.getElementById("canvas");
+    var spinner = document.getElementById("spinner");
+    var selection_ui = document.getElementById("selection");
     var ws;
     var mouse_moved = false;
+    var selection = [];
+
+    spinner.style.display = 'none';
 
     var print = function(message) {
-        var d = document.createElement("li");
-		d.setAttribute("class","list-group-item")
-        d.innerHTML = message;
-        output.appendChild(d);
+        console.log(message);
     };
 
     document.getElementById("open").onclick = function(evt) {
         if (ws) {
             return false;
 		}
-        h = document.getElementById("canvas").getAttribute("height");
-        w = document.getElementById("canvas").getAttribute("width");
+        h = canvas.getAttribute("height");
+        w = canvas.getAttribute("width");
 		ws = new WebSocket(`${host}?h=${h}&w=${w}`);
 		
         ws.onopen = function(evt) {
@@ -31,13 +33,22 @@ window.addEventListener("load", function(evt) {
         ws.onmessage = function(evt) {
 			if (evt.data.startsWith('{') && evt.data.endsWith('}')){
                 var feedback = JSON.parse(evt.data);
+                print(evt.data)
                 if (feedback.action == "loaded"){
-                    document.getElementById("spinner").style.display = 'none';
+                    spinner.style.display = 'none';
                 }
                 if (feedback.action == "loading"){
-                        document.getElementById("spinner").style.display = 'block';
+                    spinner.style.display = 'block';
                 }
-				print(evt.data)
+                if (feedback.action == "selected") {
+                    if (feedback.value == "") { 
+                        selection = []
+                        selection_ui.innerHTML = "No selection"
+                    } else {
+                        selection = [feedback.value]
+                        selection_ui.innerHTML = `Selected Node <span class="badge badge-secondary">${feedback.value}</span>`;
+                    }
+                }
 			}else{
 				var ctx = document.getElementById('canvas').getContext('2d');
 				var img = new Image();
@@ -51,7 +62,7 @@ window.addEventListener("load", function(evt) {
         return false;
     };
 
-	document.getElementById("canvas").onmousemove = function(evt){
+	canvas.onmousemove = function(evt){
 			if (!ws) {return false;}
             mouse_moved = true;
 			var rect = evt.target.getBoundingClientRect();
@@ -61,19 +72,19 @@ window.addEventListener("load", function(evt) {
 			return false;	
 	}
 
-	document.getElementById("canvas").onwheel = function(evt){
+	canvas.onwheel = function(evt){
 		evt.preventDefault();
 			if (!ws) {return false;}
 			ws.send(`{"x":${evt.deltaX},"y":${evt.deltaY}, "cmd":"zoom"}`);
 			return false;	
 	}
 
-	document.getElementById("canvas").oncontextmenu = function(evt){
+	canvas.oncontextmenu = function(evt){
 		evt.preventDefault();
         return false;
     }
 
-	document.getElementById("canvas").onmousedown = function(evt){
+	canvas.onmousedown = function(evt){
 		if (!ws) {return false;}
         evt.preventDefault();
         mouse_moved = false;
@@ -84,7 +95,7 @@ window.addEventListener("load", function(evt) {
 		return false;	
 	}
 
-    document.getElementById("canvas").onmouseup = function(evt){
+    canvas.onmouseup = function(evt){
 		evt.preventDefault();
 		if (!ws) {return false;}
 		var rect = evt.target.getBoundingClientRect();
@@ -94,24 +105,55 @@ window.addEventListener("load", function(evt) {
 		return false;	
 	}
 
-    document.getElementById("canvas").onkeydown = function(e) {
+    canvas.onkeydown = function(e) {
         e = e || window.event;
         if (!ws) {return false;}
         ws.send(`{"cmd":"keydown", "val":"${e.keyCode}"}`);
         return false;   
     }
 
-    document.getElementById("canvas").onkeyup = function(e) {
+    canvas.onkeyup = function(e) {
         e = e || window.event;
         if (!ws) {return false;}
         ws.send(`{"cmd":"keyup", "val":"${e.keyCode}"}`);
         return false;   
     }
 
-    document.getElementById("send").onclick = function(evt) {
+    document.getElementById("cmd_parallel").onclick = function(evt) {
         if (!ws) {return false;}
-		print(`Set Field of View: ${input.value}`);
-        ws.send(`{"cmd":"fov", "val":"${input.value}"}`);
+        ws.send(`{"cmd":"fov", "val":"10"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_perspective").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"fov", "val":"60"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_focus").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"focus"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_viewtop").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"viewtop"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_unhideall").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"unhide", "val":""}`);
+        return false;
+    };
+
+    document.getElementById("cmd_hide").onclick = function(evt) {
+        if (!ws) {return false;}
+        if (selection) {
+        ws.send(`{"cmd":"hide", "val":"${selection[0]}"}`);
+        }
         return false;
     };
 

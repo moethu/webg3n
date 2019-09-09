@@ -96,6 +96,10 @@ func (app *RenderingApp) commandLoop() {
 		case "keyup":
 			kev := window.KeyEvent{Action: window.Release, Mods: 0, Keycode: mapKey(cmd.Val)}
 			app.Orbit().OnKey(&kev)
+		case "viewtop":
+			app.setCameraTop()
+		case "focus":
+			app.focusOnElement()
 		case "fov":
 			fov, err := strconv.Atoi(cmd.Val)
 			if err == nil {
