@@ -82,7 +82,7 @@ func (app *RenderingApp) setupScene() {
 	plight.SetQuadraticDecay(.001)
 	app.Scene().Add(plight)
 
-	app.Camera().GetCamera().SetPosition(1, 1, 3)
+	app.Camera().GetCamera().SetPosition(12, 1, 5)
 
 	p := math32.Vector3{X: 0, Y: 0, Z: 0}
 	app.Camera().GetCamera().LookAt(&p)
