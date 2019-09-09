@@ -1,13 +1,15 @@
 
-# g3nserverside
+# webg3n
 
-g3nserverside is a GO server side 3D renderer based on the [G3N](https://github.com/g3n/engine) OpenGL engine.
+webg3n is a 3D web-viewer running [G3N](https://github.com/g3n/engine) as a server side OpenGL renderer.
 
-![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot01.png)
+![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot03.png)
 
 ## How it works
 
-g3nserverside consists of a GO webserver handling sockets to one G3N rendering instance per connection. The G3N application is constantly streaming images (jpeg) and listens for navigation events and commands from the client. The server supports multiple clients at the same time. For each client it will open one socket and spin off a separate 3D engine for rendering. The G3N application is reading [GLTF models](https://github.com/KhronosGroup/glTF), the example model is taken from [here](https://github.com/KhronosGroup/glTF-Sample-Models)
+![alt text](https://github.com/moethu/g3nserverside/raw/master/images/arc.png)
+
+webg3n is a GO webserver handling sockets to one G3N rendering instance per connection. The G3N application is constantly streaming images (jpeg) and listens for navigation events and commands from the client. The server supports multiple clients at the same time. For each client it will open one socket and spin off a separate 3D engine for rendering. The G3N application is reading [GLTF models](https://github.com/KhronosGroup/glTF), the example model is taken from [here](https://github.com/KhronosGroup/glTF-Sample-Models)
 
 ## Why Server Side Rendering
 
@@ -27,7 +29,7 @@ Requires this modified [G3N engine](https://github.com/moethu/engine) and its [d
 
 This implementation comes with a simple webUI, simply go run it and connect to port 8000.
 Once you click connect, a g3n window will appear which is the server side rendering screen.
-[Demo video](https://github.com/moethu/g3nserverside/raw/master/images/demo.mp4)
+[Demo video](https://vimeo.com/358812535)
 
 ## Contributing
 
