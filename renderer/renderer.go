@@ -86,6 +86,8 @@ func (app *RenderingApp) setupScene() {
 
 	p := math32.Vector3{X: 0, Y: 0, Z: 0}
 	app.Camera().GetCamera().LookAt(&p)
+	app.CameraPersp().SetFov(65)
+	app.zoomToExtent()
 	app.Orbit().Enabled = true
 	app.Application.Subscribe(application.OnAfterRender, app.onRender)
 }

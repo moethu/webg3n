@@ -34,8 +34,22 @@
           <a class="nav-link" id="cmd_unhideall"  href="#">Unhide all</a>
         </li><li class="nav-item">
           <a class="nav-link" id="cmd_focus"  href="#">Focus</a>
-        </li><li class="nav-item">
-          <a class="nav-link" id="cmd_viewtop"  href="#">Top View</a>
+        </li>
+        <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    View
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+    <button class="dropdown-item" id="cmd_viewtop" type="button">Top</button>
+    <button class="dropdown-item" id="cmd_viewleft" type="button">Left</button>
+    <button class="dropdown-item" id="cmd_viewright" type="button">Right</button>
+    <button class="dropdown-item" id="cmd_viewbottom" type="button">Bottom</button>
+    <button class="dropdown-item" id="cmd_viewfront" type="button">Front</button>
+    <button class="dropdown-item" id="cmd_viewrear" type="button">Rear</button>
+  </div>
+</div>
+        <li class="nav-item">
+          <a class="nav-link" id="cmd_zoomextent"  href="#">Zoom Extents</a>
         </li>
             <div id="spinner" class="spinner-border text-primary" role="status">
       <span class="sr-only">Loading...</span>

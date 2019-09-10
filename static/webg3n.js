@@ -105,14 +105,16 @@ window.addEventListener("load", function(evt) {
 		return false;	
 	}
 
-    canvas.onkeydown = function(e) {
+    this.document.onkeydown = function(e) {
+        e.preventDefault();
         e = e || window.event;
         if (!ws) {return false;}
         ws.send(`{"cmd":"keydown", "val":"${e.keyCode}"}`);
         return false;   
     }
 
-    canvas.onkeyup = function(e) {
+    this.document.onkeyup = function(e) {
+        e.preventDefault();
         e = e || window.event;
         if (!ws) {return false;}
         ws.send(`{"cmd":"keyup", "val":"${e.keyCode}"}`);
@@ -121,13 +123,19 @@ window.addEventListener("load", function(evt) {
 
     document.getElementById("cmd_parallel").onclick = function(evt) {
         if (!ws) {return false;}
-        ws.send(`{"cmd":"fov", "val":"10"}`);
+        ws.send(`{"cmd":"fov", "val":"5"}`);
         return false;
     };
 
     document.getElementById("cmd_perspective").onclick = function(evt) {
         if (!ws) {return false;}
-        ws.send(`{"cmd":"fov", "val":"60"}`);
+        ws.send(`{"cmd":"fov", "val":"65"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_zoomextent").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"zoomextent"}`);
         return false;
     };
 
@@ -139,7 +147,37 @@ window.addEventListener("load", function(evt) {
 
     document.getElementById("cmd_viewtop").onclick = function(evt) {
         if (!ws) {return false;}
-        ws.send(`{"cmd":"viewtop"}`);
+        ws.send(`{"cmd":"view", "val":"top"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_viewbottom").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"view", "val":"bottom"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_viewleft").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"view", "val":"left"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_viewright").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"view", "val":"right"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_viewrear").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"view", "val":"rear"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_viewfront").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"view", "val":"front"}`);
         return false;
     };
 
