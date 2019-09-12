@@ -7,7 +7,6 @@ window.addEventListener("load", function(evt) {
     var selection_ui = document.getElementById("selection");
     var ws;
     var mouse_moved = false;
-    var selection = [];
 
     spinner.style.display = 'none';
 
@@ -42,10 +41,8 @@ window.addEventListener("load", function(evt) {
                 }
                 if (feedback.action == "selected") {
                     if (feedback.value == "") { 
-                        selection = []
                         selection_ui.innerHTML = "No selection"
                     } else {
-                        selection = [feedback.value]
                         selection_ui.innerHTML = `Selected Node <span class="badge badge-secondary">${feedback.value}</span>`;
                     }
                 }
@@ -101,9 +98,8 @@ window.addEventListener("load", function(evt) {
 		var rect = evt.target.getBoundingClientRect();
 		var x = (evt.clientX - rect.left); 
 		var y = (evt.clientY - rect.top); 
-        ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}}`);
-        console.log(evt.button, mouse_moved)
-        
+        ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}, "ctrl":${evt.ctrlKey}}`);
+
         // open context menu if mouse hasn't been moved
         if (evt.button == 2 && !mouse_moved) {
               var top = evt.clientY;
@@ -201,9 +197,7 @@ window.addEventListener("load", function(evt) {
 
     document.getElementById("cmd_hide").onclick = function(evt) {
         if (!ws) {return false;}
-        if (selection) {
-        ws.send(`{"cmd":"hide", "val":"${selection[0]}"}`);
-        }
+        ws.send(`{"cmd":"hide"}`);
         return false;
     };
 

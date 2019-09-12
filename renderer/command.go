@@ -13,6 +13,7 @@ type Command struct {
 	Cmd   string
 	Val   string
 	Moved bool
+	Ctrl  bool
 }
 
 // mapMouseButton maps js mouse buttons to window mouse buttons
@@ -80,12 +81,13 @@ func (app *RenderingApp) commandLoop() {
 
 			// mouse left click
 			if cmd.Val == "0" && !cmd.Moved {
-				app.selectNode(cmd.X, cmd.Y)
+				app.selectNode(cmd.X, cmd.Y, cmd.Ctrl)
 			}
 		case "hide":
-			if node, ok := app.nodeBuffer[cmd.Val]; ok {
-				node.SetVisible(false)
+			for inode, _ := range app.selectionBuffer {
+				inode.GetNode().SetVisible(false)
 			}
+			app.resetSelection()
 		case "unhide":
 			for _, node := range app.nodeBuffer {
 				node.SetVisible(true)
@@ -105,7 +107,7 @@ func (app *RenderingApp) commandLoop() {
 		case "zoomextent":
 			app.zoomToExtent()
 		case "focus":
-			app.focusOnElement()
+			app.focusOnSelection()
 		case "fov":
 			fov, err := strconv.Atoi(cmd.Val)
 			if err == nil {

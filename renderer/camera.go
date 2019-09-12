@@ -2,17 +2,41 @@ package renderer
 
 import (
 	"engine/math32"
+	"log"
 )
 
 func getCenter(box math32.Box3) *math32.Vector3 {
 	return box.Center(nil)
 }
 
-func (app *RenderingApp) focusOnElement() {
+func (app *RenderingApp) focusOnSelection() {
+	var bbox *math32.Box3
+	first := true
 	for inode, _ := range app.selectionBuffer {
-		pos := getCenter(inode.BoundingBox())
-		app.Camera().GetCamera().LookAt(pos)
+		tmp := inode.BoundingBox()
+		if first {
+			bbox = math32.NewBox3(&tmp.Min, &tmp.Max)
+			log.Println(bbox)
+			first = false
+		} else {
+			bbox.ExpandByPoint(&tmp.Min)
+			bbox.ExpandByPoint(&tmp.Max)
+		}
 	}
+	if first {
+		return
+	}
+	position := app.Camera().GetCamera().Position()
+	C := bbox.Center(nil)
+	r := C.DistanceTo(&bbox.Max)
+	a := app.CameraPersp().Fov()
+	d := r / math32.Sin(a/2)
+	P := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
+	dir := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
+	P.Add(((position.Sub(C)).Normalize().MultiplyScalar(d)))
+	dir.Sub(&P)
+	app.Camera().GetCamera().SetPositionVec(&P)
+	app.Camera().GetCamera().LookAt(C)
 }
 
 func (app *RenderingApp) setCamera(view string) {

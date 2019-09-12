@@ -9,7 +9,7 @@ import (
 // selectNode uses a raycaster to get the selected node.
 // It sends the selection as json to the image channel
 // and changes the node's material
-func (app *RenderingApp) selectNode(mx float32, my float32) {
+func (app *RenderingApp) selectNode(mx float32, my float32, multiselect bool) {
 	width, height := app.Window().Size()
 	x := (-.5 + mx/float32(width)) * 2.0
 	y := (.5 - my/float32(height)) * 2.0
@@ -24,10 +24,15 @@ func (app *RenderingApp) selectNode(mx float32, my float32) {
 		object = i[0].Object.GetNode()
 		app.Log().Info("selected: %s", object.Name())
 		app.sendMessageToClient("selected", object.Name())
+		if !multiselect {
+			app.resetSelection()
+		}
 		app.changeNodeMaterial(i[0].Object)
 	} else {
-		app.sendMessageToClient("selected", "")
-		app.resetSelection()
+		if !multiselect {
+			app.sendMessageToClient("selected", "")
+			app.resetSelection()
+		}
 	}
 }
 
@@ -47,7 +52,6 @@ func (app *RenderingApp) resetSelection() {
 // changeNodeMaterial changes a node's material to selected
 func (app *RenderingApp) changeNodeMaterial(inode core.INode) {
 	gnode, ok := inode.(graphic.IGraphic)
-	app.resetSelection()
 
 	if ok {
 		if gnode.Renderable() {
