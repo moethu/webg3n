@@ -56,6 +56,10 @@ func (app *RenderingApp) commandLoop() {
 			app.Log().Error(err.Error())
 		}
 
+		if cmd.Cmd != "" {
+			app.Log().Info("received command: %v", cmd)
+		}
+
 		switch cmd.Cmd {
 		case "":
 			cev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}

@@ -13,7 +13,7 @@ func (app *RenderingApp) selectNode(mx float32, my float32) {
 	width, height := app.Window().Size()
 	x := (-.5 + mx/float32(width)) * 2.0
 	y := (.5 - my/float32(height)) * 2.0
-	app.Log().Info("click : %f, %f", x, y)
+	app.Log().Info("click: %f, %f", x, y)
 	r := core.NewRaycaster(&math32.Vector3{}, &math32.Vector3{})
 	app.CameraPersp().SetRaycaster(r, x, y)
 
@@ -22,7 +22,7 @@ func (app *RenderingApp) selectNode(mx float32, my float32) {
 	var object *core.Node
 	if len(i) != 0 {
 		object = i[0].Object.GetNode()
-		app.Log().Info("selected : %s", object.Name())
+		app.Log().Info("selected: %s", object.Name())
 		app.sendMessageToClient("selected", object.Name())
 		app.changeNodeMaterial(i[0].Object)
 	} else {
