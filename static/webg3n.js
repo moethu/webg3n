@@ -101,7 +101,19 @@ window.addEventListener("load", function(evt) {
 		var rect = evt.target.getBoundingClientRect();
 		var x = (evt.clientX - rect.left); 
 		var y = (evt.clientY - rect.top); 
-		ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}}`);
+        ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}}`);
+        console.log(evt.button, mouse_moved)
+        
+        // open context menu if mouse hasn't been moved
+        if (evt.button == 2 && !mouse_moved) {
+              var top = evt.clientY;
+              var left = evt.clientX;
+              $("#context-menu").css({
+                display: "block",
+                top: top,
+                left: left
+              }).addClass("show");
+        }
 		return false;	
 	}
 
@@ -200,5 +212,14 @@ window.addEventListener("load", function(evt) {
 		ws.send(`{"cmd":"close"}`);
         ws.close();
         return false;
-	};
+    };
+    
+
+      $("#context-menu").on("click", function() {
+        $("#context-menu").removeClass("show").hide();
+      });
+      
+      $("#context-menu a").on("click", function() {
+        $(this).parent().removeClass("show").hide();
+      });
 });

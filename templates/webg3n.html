@@ -28,12 +28,6 @@
           <a class="nav-link" id="cmd_perspective"  href="#">Perspective</a>
         </li><li class="nav-item">
           <a class="nav-link" id="cmd_parallel"  href="#">Parallel</a>
-        </li><li class="nav-item">
-          <a class="nav-link" id="cmd_hide"  href="#">Hide</a>
-        </li><li class="nav-item">
-          <a class="nav-link" id="cmd_unhideall"  href="#">Unhide all</a>
-        </li><li class="nav-item">
-          <a class="nav-link" id="cmd_focus"  href="#">Focus</a>
         </li>
         <div class="dropdown">
   <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -68,7 +62,11 @@
     <canvas id="canvas" width="900" height="700"></canvas>
   </div>
 </main>
-
+            <div class="dropdown-menu dropdown-menu-sm" id="context-menu">
+          <a class="dropdown-item" id="cmd_hide" href="#">Hide</a>
+          <a class="dropdown-item" id="cmd_focus" href="#">Focus on Element</a>
+          <a class="dropdown-item" id="cmd_unhideall"  href="#">Unhide all</a>
+        </div>
 <footer class="footer mt-auto py-3">
   <div class="container">
     <span class="text-muted" id="selection">No selection</span>
