@@ -5,6 +5,7 @@ import (
 	"engine/window"
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Command struct {
@@ -108,10 +109,41 @@ func (app *RenderingApp) commandLoop() {
 			app.zoomToExtent()
 		case "focus":
 			app.focusOnSelection()
+		case "invert":
+			if app.invert {
+				app.invert = false
+			} else {
+				app.invert = true
+			}
+		case "imagesettings":
+			s := strings.Split(cmd.Val, ":")
+			if len(s) == 4 {
+				br, err := strconv.Atoi(s[0])
+				if err == nil {
+					app.brightness = float64(getValueInRange(br, -100, 100))
+				}
+				ct, err := strconv.Atoi(s[1])
+				if err == nil {
+					app.contrast = float64(getValueInRange(ct, -100, 100))
+				}
+				sa, err := strconv.Atoi(s[2])
+				if err == nil {
+					app.saturation = float64(getValueInRange(sa, -100, 100))
+				}
+				bl, err := strconv.Atoi(s[3])
+				if err == nil {
+					app.blur = float64(getValueInRange(bl, 0, 20))
+				}
+			}
+		case "quality":
+			quality, err := strconv.Atoi(cmd.Val)
+			if err == nil {
+				app.jpegQuality = getValueInRange(quality, 5, 100)
+			}
 		case "fov":
 			fov, err := strconv.Atoi(cmd.Val)
 			if err == nil {
-				app.CameraPersp().SetFov(float32(fov))
+				app.CameraPersp().SetFov(float32(getValueInRange(fov, 5, 120)))
 			}
 		case "close":
 			app.Log().Info("close")
@@ -119,5 +151,15 @@ func (app *RenderingApp) commandLoop() {
 		default:
 			app.Log().Info("Unknown Command: " + cmd.Cmd)
 		}
+	}
+}
+
+func getValueInRange(value int, lower int, upper int) int {
+	if value > upper {
+		return upper
+	} else if value < lower {
+		return lower
+	} else {
+		return value
 	}
 }

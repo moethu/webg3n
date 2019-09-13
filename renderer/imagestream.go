@@ -20,6 +20,23 @@ func (app *RenderingApp) makeScreenShot() {
 	data := app.Gl().ReadPixels(0, 0, w, h, 6408, 5121)
 	img := image.NewNRGBA(image.Rect(0, 0, w, h))
 	img.Pix = data
+
+	if app.brightness != 0 {
+		img = imaging.AdjustBrightness(img, app.brightness)
+	}
+	if app.contrast != 0 {
+		img = imaging.AdjustContrast(img, app.contrast)
+	}
+	if app.saturation != 0 {
+		img = imaging.AdjustSaturation(img, app.saturation)
+	}
+	if app.blur != 0 {
+		img = imaging.Blur(img, app.blur)
+	}
+	if app.invert {
+		img = imaging.Invert(img)
+	}
+
 	img = imaging.FlipV(img)
 	buf := new(bytes.Buffer)
 	var opt jpeg.Options

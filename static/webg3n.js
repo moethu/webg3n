@@ -201,6 +201,50 @@ window.addEventListener("load", function(evt) {
         return false;
     };
 
+    document.getElementById("cmd_qlow").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"quality", "val":"20"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_qmid").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"quality", "val":"60"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_qhigh").onclick = function(evt) {
+        if (!ws) {return false;}
+        ws.send(`{"cmd":"quality", "val":"90"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_imagesettings").onclick = function(evt) {
+        if (!ws) {return false;}
+        let contrast = document.getElementById("img_contrast").value
+        let saturation = document.getElementById("img_saturation").value
+        let brightness = document.getElementById("img_brightness").value
+        let blur = document.getElementById("img_blur").value
+        ws.send(`{"cmd":"imagesettings", "val":"${brightness}:${contrast}:${saturation}:${blur}"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_resetimagesettings").onclick = function(evt) {
+        if (!ws) {return false;}
+        document.getElementById("img_contrast").value = 0
+        document.getElementById("img_saturation").value = 0
+        document.getElementById("img_brightness").value = 0
+        document.getElementById("img_blur").value = 0
+        ws.send(`{"cmd":"imagesettings", "val":"0:0:0:0"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_imageinvert").onclick = function(evt) {
+        if (!ws) {return false;}
+		ws.send(`{"cmd":"invert"}`);
+        return false;
+    };
+
     document.getElementById("close").onclick = function(evt) {
         if (!ws) {return false;}
 		ws.send(`{"cmd":"close"}`);

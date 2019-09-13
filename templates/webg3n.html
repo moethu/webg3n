@@ -45,9 +45,38 @@
         <li class="nav-item">
           <a class="nav-link" id="cmd_zoomextent"  href="#">Zoom Extents</a>
         </li>
+
+        <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Quality
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+    <button class="dropdown-item" id="cmd_qlow" type="button">Low</button>
+    <button class="dropdown-item" id="cmd_qmid" type="button">Mid</button>
+    <button class="dropdown-item" id="cmd_qhigh" type="button">High</button>
+  </div>
+</div>
+
+
+                <div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    Image
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+    <label for="img_brightness">Brigthness</label><input type="range" class="custom-range" id="img_brightness" value="0" min="-100" max="100">
+    <label for="img_saturation">Saturation</label><input type="range" class="custom-range" id="img_saturation" value="0" min="-100" max="100">
+    <label for="img_contrast">Contrast</label><input type="range" class="custom-range" id="img_contrast" value="0" min="-100" max="100">
+    <label for="img_blur">Blur</label><input type="range" class="custom-range" id="img_blur" value="0" min="0" max="20">
+    <button class="dropdown-item" id="cmd_imagesettings" type="button">Apply</button>
+    <button class="dropdown-item" id="cmd_imageinvert" type="button">Toggle Invert</button>
+    <button class="dropdown-item" id="cmd_resetimagesettings" type="button">Reset</button>
+  </div>
+</div>
+
             <div id="spinner" class="spinner-border text-primary" role="status">
       <span class="sr-only">Loading...</span>
     </div> 
+    
       </ul>
       <form class="form-inline mt-2 mt-md-0">
         <button type="button" id="close" class="btn btn-secondary">Close Connection</button>
