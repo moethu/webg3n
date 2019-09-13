@@ -1,11 +1,12 @@
 package main
 
 import (
-	"g3nserverside/renderer"
 	"log"
 	"os"
 	"strconv"
 	"time"
+
+	"webg3n/renderer"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
