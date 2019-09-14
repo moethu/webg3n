@@ -21,26 +21,26 @@ func (app *RenderingApp) makeScreenShot() {
 	img := image.NewNRGBA(image.Rect(0, 0, w, h))
 	img.Pix = data
 
-	if app.brightness != 0 {
-		img = imaging.AdjustBrightness(img, app.brightness)
+	if app.imageSettings.brightness != 0 {
+		img = imaging.AdjustBrightness(img, app.imageSettings.brightness)
 	}
-	if app.contrast != 0 {
-		img = imaging.AdjustContrast(img, app.contrast)
+	if app.imageSettings.contrast != 0 {
+		img = imaging.AdjustContrast(img, app.imageSettings.contrast)
 	}
-	if app.saturation != 0 {
-		img = imaging.AdjustSaturation(img, app.saturation)
+	if app.imageSettings.saturation != 0 {
+		img = imaging.AdjustSaturation(img, app.imageSettings.saturation)
 	}
-	if app.blur != 0 {
-		img = imaging.Blur(img, app.blur)
+	if app.imageSettings.blur != 0 {
+		img = imaging.Blur(img, app.imageSettings.blur)
 	}
-	if app.invert {
+	if app.imageSettings.invert {
 		img = imaging.Invert(img)
 	}
 
 	img = imaging.FlipV(img)
 	buf := new(bytes.Buffer)
 	var opt jpeg.Options
-	opt.Quality = app.jpegQuality
+	opt.Quality = app.imageSettings.jpegQuality
 	jpeg.Encode(buf, img, &opt)
 	imageBit := buf.Bytes()
 	imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))

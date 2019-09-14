@@ -110,35 +110,35 @@ func (app *RenderingApp) commandLoop() {
 		case "focus":
 			app.focusOnSelection()
 		case "invert":
-			if app.invert {
-				app.invert = false
+			if app.imageSettings.invert {
+				app.imageSettings.invert = false
 			} else {
-				app.invert = true
+				app.imageSettings.invert = true
 			}
 		case "imagesettings":
 			s := strings.Split(cmd.Val, ":")
 			if len(s) == 4 {
 				br, err := strconv.Atoi(s[0])
 				if err == nil {
-					app.brightness = float64(getValueInRange(br, -100, 100))
+					app.imageSettings.brightness = float64(getValueInRange(br, -100, 100))
 				}
 				ct, err := strconv.Atoi(s[1])
 				if err == nil {
-					app.contrast = float64(getValueInRange(ct, -100, 100))
+					app.imageSettings.contrast = float64(getValueInRange(ct, -100, 100))
 				}
 				sa, err := strconv.Atoi(s[2])
 				if err == nil {
-					app.saturation = float64(getValueInRange(sa, -100, 100))
+					app.imageSettings.saturation = float64(getValueInRange(sa, -100, 100))
 				}
 				bl, err := strconv.Atoi(s[3])
 				if err == nil {
-					app.blur = float64(getValueInRange(bl, 0, 20))
+					app.imageSettings.blur = float64(getValueInRange(bl, 0, 20))
 				}
 			}
 		case "quality":
 			quality, err := strconv.Atoi(cmd.Val)
 			if err == nil {
-				app.jpegQuality = getValueInRange(quality, 5, 100)
+				app.imageSettings.jpegQuality = getValueInRange(quality, 5, 100)
 			}
 		case "fov":
 			fov, err := strconv.Atoi(cmd.Val)

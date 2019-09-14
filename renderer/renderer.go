@@ -13,6 +13,15 @@ import (
 	"engine/util/logger"
 )
 
+type ImageSettings struct {
+	jpegQuality int
+	saturation  float64
+	contrast    float64
+	brightness  float64
+	blur        float64
+	invert      bool
+}
+
 type RenderingApp struct {
 	application.Application
 	x, y, z            float32
@@ -20,12 +29,7 @@ type RenderingApp struct {
 	c_commands         chan []byte
 	Width              int
 	Height             int
-	jpegQuality        int
-	saturation         float64
-	contrast           float64
-	brightness         float64
-	blur               float64
-	invert             bool
+	imageSettings      ImageSettings
 	selectionBuffer    map[core.INode][]graphic.GraphicMaterial
 	selection_material material.IMaterial
 	modelpath          string
@@ -51,14 +55,18 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 	app.Application = *a
 	app.Width = w
 	app.Height = h
+
+	app.imageSettings = ImageSettings{
+		jpegQuality: 60,
+		saturation:  0,
+		brightness:  0,
+		contrast:    0,
+		blur:        0,
+		invert:      false,
+	}
+
 	app.c_imagestream = write
 	app.c_commands = read
-	app.jpegQuality = 60
-	app.saturation = 0
-	app.brightness = 0
-	app.contrast = 0
-	app.blur = 0
-	app.invert = false
 	app.modelpath = modelpath
 	app.setupScene()
 	go app.commandLoop()
