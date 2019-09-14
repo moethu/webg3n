@@ -92,7 +92,7 @@ func (c *Client) streamWriter() {
 
 // serveWebsocket handles websocket requests from the peer.
 func serveWebsocket(c *gin.Context) {
-	sessionId := uuid.Must(uuid.NewV4())
+	sessionId := uuid.NewV4()
 	// upgrade connection to websocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
