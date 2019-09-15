@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"engine/window"
 	"flag"
 	"log"
 	"net/http"
@@ -56,7 +55,7 @@ func main() {
 		log.Fatal("Server Shutdown: ", err)
 	}
 
-	window.DestroyGlfwManager()
+	//window.DestroyGlfwManager()
 	log.Println("Server exiting")
 }
 

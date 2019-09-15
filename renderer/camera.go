@@ -1,15 +1,30 @@
 package renderer
 
 import (
-	"engine/math32"
 	"log"
+
+	"github.com/g3n/engine/math32"
 )
 
+type Standardview int
+
+// Standard Views
+const (
+	Front  = Standardview(0)
+	Bottom = Standardview(1)
+	Left   = Standardview(2)
+	Right  = Standardview(3)
+	Rear   = Standardview(4)
+	Top    = Standardview(5)
+)
+
+// getCenter returns boundingbox centerpoint
 func getCenter(box math32.Box3) *math32.Vector3 {
 	return box.Center(nil)
 }
 
-func (app *RenderingApp) focusOnSelection() {
+// FocusOnSelection focuses camera on currently selected elements
+func (app *RenderingApp) FocusOnSelection() {
 	var bbox *math32.Box3
 	first := true
 	for inode, _ := range app.selectionBuffer {
@@ -26,56 +41,54 @@ func (app *RenderingApp) focusOnSelection() {
 	if first {
 		return
 	}
-	position := app.Camera().GetCamera().Position()
-	C := bbox.Center(nil)
-	r := C.DistanceTo(&bbox.Max)
-	a := app.CameraPersp().Fov()
-	d := r / math32.Sin(a/2)
-	P := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
-	dir := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
-	P.Add(((position.Sub(C)).Normalize().MultiplyScalar(d)))
-	dir.Sub(&P)
-	app.Camera().GetCamera().SetPositionVec(&P)
-	app.Camera().GetCamera().LookAt(C)
+
+	position := app.camera.GetCamera().Position()
+	app.extentViewOn(bbox, position)
 }
 
-func (app *RenderingApp) setCamera(view string) {
+// SetStandardView sets the camera view to a standard
+func (app *RenderingApp) SetStandardView(view Standardview) {
 	modifier := math32.Vector3{X: 0, Y: 0, Z: 0}
 	switch view {
-	case "top":
+	case Top:
 		modifier.Y = 10
-	case "bottom":
+	case Bottom:
 		modifier.Y = -10
-	case "front":
+	case Front:
 		modifier.Z = 10
-	case "rear":
+	case Rear:
 		modifier.Z = -10
-	case "left":
+	case Left:
 		modifier.X = 10
-	case "right":
+	case Right:
 		modifier.X = -10
+	default:
+		return
 	}
-	bbox := app.Scene().ChildAt(0).BoundingBox()
+	bbox := app.scene.ChildAt(0).BoundingBox()
 	C := bbox.Center(nil)
 	pos := modifier.Add(C)
-	app.focusCameraToCenter(*pos)
+	app.extentViewOn(&bbox, *pos)
 }
 
-func (app *RenderingApp) focusCameraToCenter(position math32.Vector3) {
-	bbox := app.Scene().ChildAt(0).BoundingBox()
+// extentViewOn extents the camera view on a bounding box searching for the best fit
+// camera position between the centerpoint and the position
+func (app *RenderingApp) extentViewOn(bbox *math32.Box3, position math32.Vector3) {
 	C := bbox.Center(nil)
 	r := C.DistanceTo(&bbox.Max)
-	a := app.CameraPersp().Fov()
+	a := app.camPersp.Fov()
 	d := r / math32.Sin(a/2)
 	P := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
 	dir := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
 	P.Add(((position.Sub(C)).Normalize().MultiplyScalar(d)))
 	dir.Sub(&P)
-	app.Camera().GetCamera().SetPositionVec(&P)
-	app.Camera().GetCamera().LookAt(C)
+	app.camera.GetCamera().SetPositionVec(&P)
+	app.camera.GetCamera().LookAt(C)
 }
 
-func (app *RenderingApp) zoomToExtent() {
-	pos := app.Camera().GetCamera().Position()
-	app.focusCameraToCenter(pos)
+// ZoomExtent zooms to sceene extents
+func (app *RenderingApp) ZoomExtent() {
+	pos := app.camera.GetCamera().Position()
+	bbox := app.scene.ChildAt(0).BoundingBox()
+	app.extentViewOn(&bbox, pos)
 }

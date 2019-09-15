@@ -2,15 +2,20 @@ package renderer
 
 import (
 	"log"
+	"time"
 
-	"engine/core"
-	"engine/graphic"
-	"engine/light"
+	"github.com/g3n/engine/camera"
+	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/gls"
+	"github.com/g3n/engine/graphic"
+	"github.com/g3n/engine/light"
+	"github.com/g3n/engine/renderer"
+	"github.com/g3n/engine/util/logger"
 
-	"engine/material"
-	"engine/math32"
-	"engine/util/application"
-	"engine/util/logger"
+	"github.com/g3n/engine/app"
+
+	"github.com/g3n/engine/material"
+	"github.com/g3n/engine/math32"
 )
 
 type ImageSettings struct {
@@ -23,7 +28,7 @@ type ImageSettings struct {
 }
 
 type RenderingApp struct {
-	application.Application
+	*app.Application
 	x, y, z            float32
 	c_imagestream      chan []byte
 	c_commands         chan []byte
@@ -34,29 +39,24 @@ type RenderingApp struct {
 	selection_material material.IMaterial
 	modelpath          string
 	nodeBuffer         map[string]*core.Node
+	log                *logger.Logger // Application logger
+	scene              *core.Node     // Scene rendered
+
+	camPersp *camera.Perspective  // Perspective camera
+	camOrtho *camera.Orthographic // Orthographic camera
+	camera   camera.ICamera       // Current camera
+	orbit    *OrbitControl        // Camera orbit controller
 }
 
-func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
-	a, err := application.Create(application.Options{
-		Title:       "g3nServerApplication",
-		Width:       w,
-		Height:      h,
-		Fullscreen:  false,
-		LogPrefix:   sessionId,
-		LogLevel:    logger.DEBUG,
-		TargetFPS:   30,
-		EnableFlags: true,
-	})
+func LoadRenderingApp(sessionId string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
 
-	if err != nil {
-		panic(err)
-	}
+	a := new(RenderingApp)
+	a.Application = app.App()
 
-	app.Application = *a
-	app.Width = w
-	app.Height = h
+	a.Width = w
+	a.Height = h
 
-	app.imageSettings = ImageSettings{
+	a.imageSettings = ImageSettings{
 		jpegQuality: 60,
 		saturation:  0,
 		brightness:  0,
@@ -65,47 +65,71 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 		invert:      false,
 	}
 
-	app.c_imagestream = write
-	app.c_commands = read
-	app.modelpath = modelpath
-	app.setupScene()
-	go app.commandLoop()
-	err = app.Run()
-	if err != nil {
-		panic(err)
-	}
-
-	app.Log().Info("app was running for %f seconds\n", app.RunSeconds())
+	a.c_imagestream = write
+	a.c_commands = read
+	a.modelpath = modelpath
+	a.SetupScene()
+	go a.commandLoop()
+	a.Run(func(renderer *renderer.Renderer, deltaTime time.Duration) {
+		a.Gls().Clear(gls.DEPTH_BUFFER_BIT | gls.STENCIL_BUFFER_BIT | gls.COLOR_BUFFER_BIT)
+		renderer.Render(a.scene, a.camera)
+		a.makeScreenShot()
+	})
+	a.log.Info("App closed\n")
 }
 
 // setupScene sets up the current scene
-func (app *RenderingApp) setupScene() {
+func (app *RenderingApp) SetupScene() {
+
+	// Creates application logger
+	app.log = logger.New("G3ND", nil)
+	app.log.AddWriter(logger.NewConsole(false))
+	app.log.SetFormat(logger.FTIME | logger.FMICROS)
+	app.log.SetLevel(logger.DEBUG)
+	app.log.Info("Starting")
+
+	// Define Selection Material and buffer
 	app.selection_material = material.NewPhong(math32.NewColor("Red"))
 	app.selectionBuffer = make(map[core.INode][]graphic.GraphicMaterial)
 	app.nodeBuffer = make(map[string]*core.Node)
 
-	app.Gl().ClearColor(1.0, 1.0, 1.0, 1.0)
+	// setup new scene and white background
+	app.scene = core.NewNode()
+	app.Gls().ClearColor(1.0, 1.0, 1.0, 1.0)
 
+	// load model from file
 	er := app.loadScene(app.modelpath)
 	if er != nil {
 		log.Fatal(er)
 	}
 
+	// Create perspective camera
+	width, height := app.GetSize()
+	aspect := float32(width) / float32(height)
+	app.camPersp = camera.NewPerspective(65, aspect, 0.01, 1000)
+	app.camera = app.camPersp // Default camera is perspective
+
+	// Create orthographic camera
+	app.camOrtho = camera.NewOrthographic(-2, 2, 2, -2, 0.01, 1000)
+
+	// Add camera to scene (important for audio demos)
+	app.scene.Add(app.camera.GetCamera())
+
 	amb := light.NewAmbient(&math32.Color{0.2, 0.2, 0.2}, 1.0)
-	app.Scene().Add(amb)
+	app.scene.Add(amb)
 
 	plight := light.NewPoint(math32.NewColor("white"), 40)
 	plight.SetPosition(100, 20, 70)
 	plight.SetLinearDecay(.001)
 	plight.SetQuadraticDecay(.001)
-	app.Scene().Add(plight)
+	app.scene.Add(plight)
 
-	app.Camera().GetCamera().SetPosition(12, 1, 5)
+	app.camera.GetCamera().SetPosition(12, 1, 5)
 
 	p := math32.Vector3{X: 0, Y: 0, Z: 0}
-	app.Camera().GetCamera().LookAt(&p)
-	app.CameraPersp().SetFov(65)
-	app.zoomToExtent()
-	app.Orbit().Enabled = true
-	app.Application.Subscribe(application.OnAfterRender, app.onRender)
+	app.camera.GetCamera().LookAt(&p)
+	app.camPersp.SetFov(65)
+	app.ZoomExtent()
+	app.orbit = NewOrbitControl(app.camera)
+	app.orbit.Enabled = true
 }

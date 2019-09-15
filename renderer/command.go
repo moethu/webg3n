@@ -2,19 +2,21 @@ package renderer
 
 import (
 	"encoding/json"
-	"engine/window"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/g3n/engine/window"
 )
 
+// Incoming Command from js
 type Command struct {
-	X     float32
-	Y     float32
-	Cmd   string
-	Val   string
-	Moved bool
-	Ctrl  bool
+	X     float32 `json:"x"`
+	Y     float32 `json:"y"`
+	Cmd   string  `json:"cmd"`
+	Val   string  `json:"val"`
+	Moved bool    `json:"moved"`
+	Ctrl  bool    `json:"ctrl"`
 }
 
 // mapMouseButton maps js mouse buttons to window mouse buttons
@@ -47,6 +49,26 @@ func mapKey(value string) window.Key {
 	}
 }
 
+// maps view string to enum
+func mapView(value string) Standardview {
+	switch value {
+	case "front":
+		return Front
+	case "rear":
+		return Rear
+	case "top":
+		return Top
+	case "bottom":
+		return Bottom
+	case "left":
+		return Left
+	case "right":
+		return Right
+	default:
+		return Top
+	}
+}
+
 // commandLoop listens for incoming commands and forwards them to the rendering app
 func (app *RenderingApp) commandLoop() {
 	for {
@@ -55,30 +77,28 @@ func (app *RenderingApp) commandLoop() {
 		cmd := Command{}
 		err := json.Unmarshal(message, &cmd)
 		if err != nil {
-			app.Log().Error(err.Error())
+			app.log.Error(err.Error())
 		}
 
 		if cmd.Cmd != "" {
-			app.Log().Info("received command: %v", cmd)
+			app.log.Info("received command: %v", cmd)
 		}
 
 		switch cmd.Cmd {
 		case "":
-			cev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
-			app.Orbit().OnCursorPos(&cev)
+			cev := mouseEvent{X: cmd.X, Y: cmd.Y}
+			app.orbit.OnCursorPos(&cev)
 		case "mousedown":
-			mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
-				Action: window.Press,
-				Button: mapMouseButton(cmd.Val)}
-			app.Orbit().OnMouse(&mev)
+			mev := mouseEvent{X: cmd.X, Y: cmd.Y,
+				Button: mapMouseButton(cmd.Val), MouseDown: true}
+			app.orbit.OnMouse(&mev)
 		case "zoom":
-			mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y}
-			app.Orbit().OnScroll(&mev)
+			mev := mouseEvent{X: cmd.X, Y: cmd.Y}
+			app.orbit.OnScroll(&mev)
 		case "mouseup":
-			mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
-				Action: window.Release,
-				Button: mapMouseButton(cmd.Val)}
-			app.Orbit().OnMouse(&mev)
+			mev := mouseEvent{X: cmd.X, Y: cmd.Y,
+				Button: mapMouseButton(cmd.Val), MouseDown: false}
+			app.orbit.OnMouse(&mev)
 
 			// mouse left click
 			if cmd.Val == "0" && !cmd.Moved {
@@ -95,20 +115,17 @@ func (app *RenderingApp) commandLoop() {
 			}
 		case "userdata":
 			if node, ok := app.nodeBuffer[cmd.Val]; ok {
-				app.sendMessageToClient("userdata", fmt.Sprintf("%v", node.UserData()))
+				app.respondToClient("userdata", fmt.Sprintf("%v", node.UserData()))
 			}
 		case "keydown":
-			kev := window.KeyEvent{Action: window.Press, Mods: 0, Keycode: mapKey(cmd.Val)}
-			app.Orbit().OnKey(&kev)
-		case "keyup":
-			kev := window.KeyEvent{Action: window.Release, Mods: 0, Keycode: mapKey(cmd.Val)}
-			app.Orbit().OnKey(&kev)
+			kev := keyEvent{Key: mapKey(cmd.Val), IsPressed: true}
+			app.orbit.OnKey(&kev)
 		case "view":
-			app.setCamera(cmd.Val)
+			app.SetStandardView(mapView(cmd.Val))
 		case "zoomextent":
-			app.zoomToExtent()
+			app.ZoomExtent()
 		case "focus":
-			app.focusOnSelection()
+			app.FocusOnSelection()
 		case "invert":
 			if app.imageSettings.invert {
 				app.imageSettings.invert = false
@@ -143,17 +160,18 @@ func (app *RenderingApp) commandLoop() {
 		case "fov":
 			fov, err := strconv.Atoi(cmd.Val)
 			if err == nil {
-				app.CameraPersp().SetFov(float32(getValueInRange(fov, 5, 120)))
+				app.camPersp.SetFov(float32(getValueInRange(fov, 5, 120)))
 			}
 		case "close":
-			app.Log().Info("close")
-			app.Window().SetShouldClose(true)
+			app.log.Info("close")
+			//app.Window().SetShouldClose(true)
 		default:
-			app.Log().Info("Unknown Command: " + cmd.Cmd)
+			app.log.Info("Unknown Command: " + cmd.Cmd)
 		}
 	}
 }
 
+// getValueInRange returns an integer value within a certain range
 func getValueInRange(value int, lower int, upper int) int {
 	if value > upper {
 		return upper

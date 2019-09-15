@@ -1,36 +1,35 @@
 package renderer
 
 import (
-	"engine/core"
-	"engine/graphic"
-	"engine/math32"
+	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/graphic"
+	"github.com/g3n/engine/math32"
 )
 
 // selectNode uses a raycaster to get the selected node.
 // It sends the selection as json to the image channel
 // and changes the node's material
 func (app *RenderingApp) selectNode(mx float32, my float32, multiselect bool) {
-	width, height := app.Window().Size()
-	x := (-.5 + mx/float32(width)) * 2.0
-	y := (.5 - my/float32(height)) * 2.0
-	app.Log().Info("click: %f, %f", x, y)
+	x := (-.5 + mx/float32(app.Width)) * 2.0
+	y := (.5 - my/float32(app.Height)) * 2.0
+	app.log.Info("click: %f, %f", x, y)
 	r := core.NewRaycaster(&math32.Vector3{}, &math32.Vector3{})
-	app.CameraPersp().SetRaycaster(r, x, y)
+	app.camPersp.SetRaycaster(r, x, y)
 
-	i := r.IntersectObject(app.Scene(), true)
+	i := r.IntersectObject(app.scene, true)
 
 	var object *core.Node
 	if len(i) != 0 {
 		object = i[0].Object.GetNode()
-		app.Log().Info("selected: %s", object.Name())
-		app.sendMessageToClient("selected", object.Name())
+		app.log.Info("selected: %s", object.Name())
+		app.respondToClient("selected", object.Name())
 		if !multiselect {
 			app.resetSelection()
 		}
 		app.changeNodeMaterial(i[0].Object)
 	} else {
 		if !multiselect {
-			app.sendMessageToClient("selected", "")
+			app.respondToClient("selected", "")
 			app.resetSelection()
 		}
 	}

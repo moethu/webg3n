@@ -131,7 +131,7 @@ func serveWebsocket(c *gin.Context) {
 
 	// run 3d application in separate go routine
 	// this is currently not threadafe but it's a single 3d app per socket
-	go renderer.LoadRenderingApp(&client.app, sessionId.String(), height, width, c_write, c_read, modelPath+model)
+	go renderer.LoadRenderingApp(sessionId.String(), height, width, c_write, c_read, modelPath+model)
 
 	// run reader and writer in two different go routines
 	// so they can act concurrently

@@ -9,15 +9,11 @@ import (
 	"github.com/disintegration/imaging"
 )
 
-func (a *RenderingApp) onRender(evname string, ev interface{}) {
-	a.makeScreenShot()
-}
-
 // makeScreenShot reads the opengl buffer, encodes it as jpeg and sends it to the channel
 func (app *RenderingApp) makeScreenShot() {
 	w := app.Width
 	h := app.Height
-	data := app.Gl().ReadPixels(0, 0, w, h, 6408, 5121)
+	data := app.Gls().ReadPixels(0, 0, w, h, 6408, 5121)
 	img := image.NewNRGBA(image.Rect(0, 0, w, h))
 	img.Pix = data
 

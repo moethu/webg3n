@@ -1,11 +1,12 @@
 package renderer
 
 import (
-	"engine/core"
-	"engine/loader/gltf"
 	"fmt"
 	"path/filepath"
 	"strconv"
+
+	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/loader/gltf"
 )
 
 // nameChildren names all gltf nodes by path
@@ -22,7 +23,7 @@ func (a *RenderingApp) nameChildren(p string, n core.INode) {
 
 // loadScene loads a gltf file
 func (a *RenderingApp) loadScene(fpath string) error {
-	a.sendMessageToClient("loading", fpath)
+	a.respondToClient("loading", fpath)
 	// Checks file extension
 	ext := filepath.Ext(fpath)
 	var g *gltf.GLTF
@@ -52,9 +53,9 @@ func (a *RenderingApp) loadScene(fpath string) error {
 		return err
 	}
 
-	a.Scene().Add(n)
-	root := a.Scene().ChildIndex(n)
+	a.scene.Add(n)
+	root := a.scene.ChildIndex(n)
 	a.nameChildren("/"+strconv.Itoa(root), n)
-	a.sendMessageToClient("loaded", fpath)
+	a.respondToClient("loaded", fpath)
 	return nil
 }
