@@ -11,9 +11,7 @@ import (
 	"github.com/g3n/engine/light"
 	"github.com/g3n/engine/renderer"
 	"github.com/g3n/engine/util/logger"
-
 	"github.com/g3n/engine/app"
-
 	"github.com/g3n/engine/material"
 	"github.com/g3n/engine/math32"
 )
