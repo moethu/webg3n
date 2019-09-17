@@ -1,3 +1,7 @@
+// Copyright 2016 The G3N Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
 package renderer
 
 import (
@@ -8,329 +12,306 @@ import (
 	"github.com/g3n/engine/gui"
 	"github.com/g3n/engine/math32"
 	"github.com/g3n/engine/window"
-
-	"github.com/prometheus/common/log"
 )
 
-// OrbitControl is a camera controller that allows orbiting a center point while looking at it.
-type OrbitControl struct {
-	core.Dispatcher         // Embedded event dispatcher
-	Enabled         bool    // Control enabled state
-	EnableRotate    bool    // Rotate enabled state
-	EnableZoom      bool    // Zoom enabled state
-	EnablePan       bool    // Pan enabled state
-	EnableKeys      bool    // Enable keys state
-	ZoomSpeed       float32 // Zoom speed factor. Default is 1.0
-	RotateSpeed     float32 // Rotate speed factor. Default is 1.0
-	MinDistance     float32 // Minimum distance from target. Default is 0.01
-	MaxDistance     float32 // Maximum distance from target. Default is infinity
-	MinPolarAngle   float32 // Minimum polar angle for rotation
-	MaxPolarAngle   float32
-	MinAzimuthAngle float32
-	MaxAzimuthAngle float32
-	KeyRotateSpeed  float32
-	KeyPanSpeed     float32
-	// Internal
-	icam        camera.ICamera
-	cam         *camera.Camera
-	camPersp    *camera.Perspective
-	camOrtho    *camera.Orthographic
-	win         window.IWindow
-	position0   math32.Vector3 // Initial camera position
-	target0     math32.Vector3 // Initial camera target position
-	state       int            // current active state
-	phiDelta    float32        // rotation delta in the XZ plane
-	thetaDelta  float32        // rotation delta in the YX plane
-	rotateStart math32.Vector2
-	rotateEnd   math32.Vector2
-	rotateDelta math32.Vector2
-	panStart    math32.Vector2 // initial pan screen coordinates
-	panEnd      math32.Vector2 // final pan screen coordinates
-	panDelta    math32.Vector2
-	panOffset   math32.Vector2
-	zoomStart   float32
-	zoomEnd     float32
-	zoomDelta   float32
-	subsEvents  int // Address of this field is used as events subscription id
-	subsPos     int // Address of this field is used as cursor pos events subscription id
-}
+// OrbitEnabled specifies which control types are enabled.
+type OrbitEnabled int
+
+// The possible control types.
+const (
+	OrbitNone OrbitEnabled = 0x00
+	OrbitRot  OrbitEnabled = 0x01
+	OrbitZoom OrbitEnabled = 0x02
+	OrbitPan  OrbitEnabled = 0x04
+	OrbitKeys OrbitEnabled = 0x08
+	OrbitAll  OrbitEnabled = 0xFF
+)
+
+// orbitState bitmask
+type orbitState int
 
 const (
-	stateNone = iota
+	stateNone = orbitState(iota)
 	stateRotate
 	stateZoom
 	statePan
 )
 
-// Package logger
-//var log = logger.New("ORBIT", logger.Default)
+// OrbitControl is a camera controller that allows orbiting a target point while looking at it.
+// It allows the user to rotate, zoom, and pan a 3D scene using the mouse or keyboard.
+type OrbitControl struct {
+	core.Dispatcher                // Embedded event dispatcher
+	cam             *camera.Camera // Controlled camera
+	target          math32.Vector3 // Camera target, around which the camera orbits
+	up              math32.Vector3 // The orbit axis (Y+)
+	enabled         OrbitEnabled   // Which controls are enabled
+	state           orbitState     // Current control state
+
+	// Public properties
+	MinDistance     float32 // Minimum distance from target (default is 1)
+	MaxDistance     float32 // Maximum distance from target (default is infinity)
+	MinPolarAngle   float32 // Minimum polar angle in radians (default is 0)
+	MaxPolarAngle   float32 // Maximum polar angle in radians (default is Pi)
+	MinAzimuthAngle float32 // Minimum azimuthal angle in radians (default is negative infinity)
+	MaxAzimuthAngle float32 // Maximum azimuthal angle in radians (default is infinity)
+	RotSpeed        float32 // Rotation speed factor (default is 1)
+	ZoomSpeed       float32 // Zoom speed factor (default is 0.1)
+	KeyRotSpeed     float32 // Rotation delta in radians used on each rotation key event (default is the equivalent of 15 degrees)
+	KeyZoomSpeed    float32 // Zoom delta used on each zoom key event (default is 2)
+	KeyPanSpeed     float32 // Pan delta used on each pan key event (default is 35)
+
+	// Internal
+	rotStart  math32.Vector2
+	panStart  math32.Vector2
+	zoomStart float32
+}
 
 // NewOrbitControl creates and returns a pointer to a new orbit control for the specified camera.
-func NewOrbitControl(icam camera.ICamera) *OrbitControl {
+func NewOrbitControl(cam *camera.Camera) *OrbitControl {
 
 	oc := new(OrbitControl)
 	oc.Dispatcher.Initialize()
-	oc.icam = icam
+	oc.cam = cam
+	oc.target = *math32.NewVec3()
+	oc.up = *math32.NewVector3(0, 1, 0)
+	oc.enabled = OrbitAll
 
-	oc.cam = icam.GetCamera()
-	if persp, ok := icam.(*camera.Perspective); ok {
-		oc.camPersp = persp
-	} else if ortho, ok := icam.(*camera.Orthographic); ok {
-		oc.camOrtho = ortho
-	} else {
-		panic("Invalid camera type")
-	}
-
-	// Set defaults
-	oc.Enabled = true
-	oc.EnableRotate = true
-	oc.EnableZoom = true
-	oc.EnablePan = true
-	oc.EnableKeys = true
-	oc.ZoomSpeed = 1.0
-	oc.RotateSpeed = 1.0
-	oc.MinDistance = 0.01
+	oc.MinDistance = 1.0
 	oc.MaxDistance = float32(math.Inf(1))
 	oc.MinPolarAngle = 0
-	oc.MaxPolarAngle = math32.Pi
+	oc.MaxPolarAngle = math32.Pi // 180 degrees as radians
 	oc.MinAzimuthAngle = float32(math.Inf(-1))
 	oc.MaxAzimuthAngle = float32(math.Inf(1))
-	oc.KeyPanSpeed = 5.0
-	oc.KeyRotateSpeed = 0.02
+	oc.RotSpeed = 1.0
+	oc.ZoomSpeed = 0.1
+	oc.KeyRotSpeed = 15 * math32.Pi / 180 // 15 degrees as radians
+	oc.KeyZoomSpeed = 2.0
+	oc.KeyPanSpeed = 35.0
 
-	// Saves initial camera parameters
-	oc.position0 = oc.cam.Position()
-	oc.target0 = oc.cam.Target()
-
-	// Subscribe to events
-	//gui.Manager().SubscribeID(window.OnMouseUp, &oc.subsEvents, oc.onMouse)
-	//gui.Manager().SubscribeID(window.OnMouseDown, &oc.subsEvents, oc.onMouse)
-	//gui.Manager().SubscribeID(window.OnScroll, &oc.subsEvents, oc.onScroll)
-	//gui.Manager().SubscribeID(window.OnKeyDown, &oc.subsEvents, oc.onKey)
-	//oc.SubscribeID(window.OnCursor, &oc.subsPos, oc.onCursorPos)
 	return oc
 }
 
-// Dispose unsubscribes from all events
+// Dispose unsubscribes from all events.
 func (oc *OrbitControl) Dispose() {
 
-	// Unsubscribe to event handlers
-	gui.Manager().UnsubscribeID(window.OnMouseUp, &oc.subsEvents)
-	gui.Manager().UnsubscribeID(window.OnMouseDown, &oc.subsEvents)
-	gui.Manager().UnsubscribeID(window.OnScroll, &oc.subsEvents)
-	gui.Manager().UnsubscribeID(window.OnKeyDown, &oc.subsEvents)
-	oc.UnsubscribeID(window.OnCursor, &oc.subsPos)
+	gui.Manager().UnsubscribeID(window.OnMouseUp, &oc)
+	gui.Manager().UnsubscribeID(window.OnMouseDown, &oc)
+	gui.Manager().UnsubscribeID(window.OnScroll, &oc)
+	gui.Manager().UnsubscribeID(window.OnKeyDown, &oc)
+	gui.Manager().UnsubscribeID(window.OnKeyRepeat, &oc)
+	oc.UnsubscribeID(window.OnCursor, &oc)
 }
 
-// Reset to initial camera position
+// Reset resets the orbit control.
 func (oc *OrbitControl) Reset() {
 
-	oc.state = stateNone
-	oc.cam.SetPositionVec(&oc.position0)
-	oc.cam.LookAt(&oc.target0)
+	oc.target = *math32.NewVec3()
 }
 
-// Pan the camera and target by the specified deltas
-func (oc *OrbitControl) Pan(deltaX, deltaY float32) {
+// Target returns the current orbit target.
+func (oc *OrbitControl) Target() math32.Vector3 {
 
-	width, height := window.Get().GetSize()
-	oc.pan(deltaX, deltaY, width, height)
-	oc.updatePan()
+	return oc.target
 }
 
-// Zoom in or out
-func (oc *OrbitControl) Zoom(delta float32) {
+// Enabled returns the current OrbitEnabled bitmask.
+func (oc *OrbitControl) Enabled() OrbitEnabled {
 
-	oc.zoomDelta = delta
-	oc.updateZoom()
+	return oc.enabled
 }
 
-// RotateLeft rotates the camera left by specified angle
-func (oc *OrbitControl) RotateLeft(angle float32) {
+// SetEnabled sets the current OrbitEnabled bitmask.
+func (oc *OrbitControl) SetEnabled(bitmask OrbitEnabled) {
 
-	oc.thetaDelta -= angle
-	oc.updateRotate()
+	oc.enabled = bitmask
 }
 
-// RotateUp rotates the camera up by specified angle
-func (oc *OrbitControl) RotateUp(angle float32) {
+// Rotate rotates the camera around the target by the specified angles.
+func (oc *OrbitControl) Rotate(thetaDelta, phiDelta float32) {
 
-	oc.phiDelta -= angle
-	oc.updateRotate()
-}
+	const EPS = 0.0001
 
-// Updates the camera rotation from thetaDelta and phiDelta
-func (oc *OrbitControl) updateRotate() {
+	// Compute direction vector from target to camera
+	tcam := oc.cam.Position()
+	tcam.Sub(&oc.target)
 
-	const EPS = 0.01
+	// Calculate angles based on current camera position plus deltas
+	radius := tcam.Length()
+	theta := math32.Atan2(tcam.X, tcam.Z) + thetaDelta
+	phi := math32.Acos(tcam.Y/radius) + phiDelta
 
-	// Get camera parameters
-	position := oc.cam.Position()
-	target := oc.cam.Target()
-	up := oc.cam.Up()
-
-	// Camera UP is the orbit axis
-	var quat math32.Quaternion
-	quat.SetFromUnitVectors(&up, &math32.Vector3{0, 1, 0})
-	quatInverse := quat
-	quatInverse.Inverse()
-
-	// Calculates direction vector from camera position to target
-	vdir := position
-	vdir.Sub(&target)
-	vdir.ApplyQuaternion(&quat)
-
-	// Calculate angles from current camera position
-	radius := vdir.Length()
-	theta := math32.Atan2(vdir.X, vdir.Z)
-	phi := math32.Acos(vdir.Y / radius)
-
-	// Add deltas to the angles
-	theta += oc.thetaDelta
-	phi += oc.phiDelta
-
-	// Restrict phi (elevation) to be between desired limits
-	phi = math32.Max(oc.MinPolarAngle, math32.Min(oc.MaxPolarAngle, phi))
-	phi = math32.Max(EPS, math32.Min(math32.Pi-EPS, phi))
-	// Restrict theta to be between desired limits
-	theta = math32.Max(oc.MinAzimuthAngle, math32.Min(oc.MaxAzimuthAngle, theta))
+	// Restrict phi and theta to be between desired limits
+	phi = math32.Clamp(phi, oc.MinPolarAngle, oc.MaxPolarAngle)
+	phi = math32.Clamp(phi, EPS, math32.Pi-EPS)
+	theta = math32.Clamp(theta, oc.MinAzimuthAngle, oc.MaxAzimuthAngle)
 
 	// Calculate new cartesian coordinates
-	vdir.X = radius * math32.Sin(phi) * math32.Sin(theta)
-	vdir.Y = radius * math32.Cos(phi)
-	vdir.Z = radius * math32.Sin(phi) * math32.Cos(theta)
+	tcam.X = radius * math32.Sin(phi) * math32.Sin(theta)
+	tcam.Y = radius * math32.Cos(phi)
+	tcam.Z = radius * math32.Sin(phi) * math32.Cos(theta)
 
-	// Rotate offset back to "camera-up-vector-is-up" space
-	vdir.ApplyQuaternion(&quatInverse)
-
-	position = target
-	position.Add(&vdir)
-	oc.cam.SetPositionVec(&position)
-	oc.cam.LookAt(&target)
-
-	// Reset deltas
-	oc.thetaDelta = 0
-	oc.phiDelta = 0
+	// Update camera position and orientation
+	oc.cam.SetPositionVec(oc.target.Clone().Add(&tcam))
+	oc.cam.LookAt(&oc.target, &oc.up)
 }
 
-// Updates camera rotation from thetaDelta and phiDelta
-// ALTERNATIVE rotation algorithm
-func (oc *OrbitControl) updateRotate2() {
+// Zoom moves the camera closer or farther from the target the specified amount
+// and also updates the camera's orthographic size to match.
+func (oc *OrbitControl) Zoom(delta float32) {
 
-	const EPS = 0.01
+	// Compute direction vector from target to camera
+	tcam := oc.cam.Position()
+	tcam.Sub(&oc.target)
 
-	// Get camera parameters
+	// Calculate new distance from target and apply limits
+	dist := tcam.Length() * (1 + delta/10)
+	dist = math32.Max(oc.MinDistance, math32.Min(oc.MaxDistance, dist))
+	tcam.SetLength(dist)
+
+	// Update orthographic size and camera position with new distance
+	oc.cam.UpdateSize(tcam.Length())
+	oc.cam.SetPositionVec(oc.target.Clone().Add(&tcam))
+}
+
+// Pan pans the camera and target the specified amount on the plane perpendicular to the viewing direction.
+func (oc *OrbitControl) Pan(deltaX, deltaY float32) {
+
+	// Compute direction vector from camera to target
 	position := oc.cam.Position()
-	target := oc.cam.Target()
-	up := oc.cam.Up()
+	vdir := oc.target.Clone().Sub(&position)
 
-	// Calculates direction vector from target to camera
-	vdir := position
-	vdir.Sub(&target)
+	// Conversion constant between an on-screen cursor delta and its projection on the target plane
+	c := 2 * vdir.Length() * math32.Tan((oc.cam.Fov()/2.0)*math32.Pi/180.0) / oc.winSize()
 
-	// Calculates right and up vectors
-	var vright math32.Vector3
-	vright.CrossVectors(&up, &vdir)
-	vright.Normalize()
-	var vup math32.Vector3
-	vup.CrossVectors(&vdir, &vright)
-	vup.Normalize()
+	// Calculate pan components, scale by the converted offsets and combine them
+	var pan, panX, panY math32.Vector3
+	panX.CrossVectors(&oc.up, vdir).Normalize()
+	panY.CrossVectors(vdir, &panX).Normalize()
+	panY.MultiplyScalar(c * deltaY)
+	panX.MultiplyScalar(c * deltaX)
+	pan.AddVectors(&panX, &panY)
 
-	phi := vdir.AngleTo(&math32.Vector3{0, 1, 0})
-	newphi := phi + oc.phiDelta
-	if newphi < EPS || newphi > math32.Pi-EPS {
-		oc.phiDelta = 0
-	} else if newphi < oc.MinPolarAngle || newphi > oc.MaxPolarAngle {
-		oc.phiDelta = 0
-	}
-
-	// Rotates position around the two vectors
-	vdir.ApplyAxisAngle(&vup, oc.thetaDelta)
-	vdir.ApplyAxisAngle(&vright, oc.phiDelta)
-
-	// Adds target back get final position
-	position = target
-	position.Add(&vdir)
-	log.Debug("orbit set position")
-	oc.cam.SetPositionVec(&position)
-	oc.cam.LookAt(&target)
-
-	// Reset deltas
-	oc.thetaDelta = 0
-	oc.phiDelta = 0
+	// Add pan offset to camera and target
+	oc.cam.SetPositionVec(position.Add(&pan))
+	oc.target.Add(&pan)
 }
 
-// Updates camera pan from panOffset
-func (oc *OrbitControl) updatePan() {
+// onMouse is called when an OnMouseDown/OnMouseUp event is received.
+func (oc *OrbitControl) onMouse(mev *mouseEvent) {
 
-	// Get camera parameters
-	position := oc.cam.Position()
-	target := oc.cam.Target()
-	up := oc.cam.Up()
-
-	// Calculates direction vector from camera position to target
-	vdir := target
-	vdir.Sub(&position)
-	vdir.Normalize()
-
-	// Calculates vector perpendicular to direction and up (side vector)
-	var vpanx math32.Vector3
-	vpanx.CrossVectors(&up, &vdir)
-	vpanx.Normalize()
-
-	// Calculates vector perpendicular to direction and vpanx
-	var vpany math32.Vector3
-	vpany.CrossVectors(&vdir, &vpanx)
-	vpany.Normalize()
-
-	// Adds pan offsets
-	vpanx.MultiplyScalar(oc.panOffset.X)
-	vpany.MultiplyScalar(oc.panOffset.Y)
-	var vpan math32.Vector3
-	vpan.AddVectors(&vpanx, &vpany)
-
-	// Adds offsets to camera position and target
-	position.Add(&vpan)
-	target.Add(&vpan)
-
-	// Sets new camera parameters
-	oc.cam.SetPositionVec(&position)
-	oc.cam.LookAt(&target)
-
-	// Reset deltas
-	oc.panOffset.Set(0, 0)
-}
-
-// Updates camera zoom from zoomDelta
-func (oc *OrbitControl) updateZoom() {
-
-	if oc.camOrtho != nil {
-		zoom := oc.camOrtho.Zoom() - 0.01*oc.zoomDelta
-		oc.camOrtho.SetZoom(zoom)
-		// Reset delta
-		oc.zoomDelta = 0
+	// If nothing enabled ignore event
+	if oc.enabled == OrbitNone {
 		return
 	}
 
-	// Get camera and target positions
-	position := oc.cam.Position()
-	target := oc.cam.Target()
+	if mev.MouseDown {
+		gui.Manager().SetCursorFocus(oc)
+		switch mev.Button {
+		case window.MouseButtonLeft: // Rotate
+			if oc.enabled&OrbitRot != 0 {
+				oc.state = stateRotate
+				oc.rotStart.Set(mev.X, mev.Y)
+			}
+		case window.MouseButtonMiddle: // Zoom
+			if oc.enabled&OrbitZoom != 0 {
+				oc.state = stateZoom
+				oc.zoomStart = mev.Y
+			}
+		case window.MouseButtonRight: // Pan
+			if oc.enabled&OrbitPan != 0 {
+				oc.state = statePan
+				oc.panStart.Set(mev.X, mev.Y)
+			}
+		}
+	} else {
+		gui.Manager().SetCursorFocus(nil)
+		oc.state = stateNone
+	}
+}
 
-	// Calculates direction vector from target to camera position
-	vdir := position
-	vdir.Sub(&target)
+// onCursor is called when an OnCursor event is received.
+func (oc *OrbitControl) onCursor(mev *mouseEvent) {
 
-	// Calculates new distance from target and applies limits
-	dist := vdir.Length() * (1.0 + oc.zoomDelta*oc.ZoomSpeed/10.0)
-	dist = math32.Max(oc.MinDistance, math32.Min(oc.MaxDistance, dist))
-	vdir.SetLength(dist)
+	// If nothing enabled ignore event
+	if oc.enabled == OrbitNone || oc.state == stateNone {
+		return
+	}
 
-	// Adds new distance to target to get new camera position
-	target.Add(&vdir)
-	oc.cam.SetPositionVec(&target)
+	switch oc.state {
+	case stateRotate:
+		c := -2 * math32.Pi * oc.RotSpeed / oc.winSize()
+		oc.Rotate(c*(mev.X-oc.rotStart.X),
+			c*(mev.Y-oc.rotStart.Y))
+		oc.rotStart.Set(mev.X, mev.Y)
+	case stateZoom:
+		oc.Zoom(oc.ZoomSpeed * (mev.Y - oc.zoomStart))
+		oc.zoomStart = mev.Y
+	case statePan:
+		oc.Pan(mev.X-oc.panStart.X,
+			mev.Y-oc.panStart.Y)
+		oc.panStart.Set(mev.X, mev.Y)
+	}
+}
 
-	// Reset delta
-	oc.zoomDelta = 0
+// onScroll is called when an OnScroll event is received.
+func (oc *OrbitControl) onScroll(mev *mouseEvent) {
+
+	if oc.enabled&OrbitZoom != 0 {
+		oc.Zoom(mev.Y)
+	}
+}
+
+// onKey is called when an OnKeyDown/OnKeyRepeat event is received.
+func (oc *OrbitControl) onKey(kev *keyEvent) {
+
+	// If keyboard control is disabled ignore event
+	if oc.enabled&OrbitKeys == 0 {
+		return
+	}
+
+	if kev.Mods == 0 && oc.enabled&OrbitRot != 0 {
+		switch kev.Key {
+		case window.KeyUp:
+			oc.Rotate(0, -oc.KeyRotSpeed)
+		case window.KeyDown:
+			oc.Rotate(0, oc.KeyRotSpeed)
+		case window.KeyLeft:
+			oc.Rotate(-oc.KeyRotSpeed, 0)
+		case window.KeyRight:
+			oc.Rotate(oc.KeyRotSpeed, 0)
+		}
+	}
+	/*
+		if kev.Mods == window.ModControl && oc.enabled&OrbitZoom != 0 {
+			switch kev.Key {
+			case window.KeyUp:
+				oc.Zoom(-oc.KeyZoomSpeed)
+			case window.KeyDown:
+				oc.Zoom(oc.KeyZoomSpeed)
+			}
+		}
+		if kev.Mods == window.ModShift && oc.enabled&OrbitPan != 0 {
+			switch kev.Key {
+			case window.KeyUp:
+				oc.Pan(0, oc.KeyPanSpeed)
+			case window.KeyDown:
+				oc.Pan(0, -oc.KeyPanSpeed)
+			case window.KeyLeft:
+				oc.Pan(oc.KeyPanSpeed, 0)
+			case window.KeyRight:
+				oc.Pan(-oc.KeyPanSpeed, 0)
+			}
+		}*/
+}
+
+// winSize returns the window height or width based on the camera reference axis.
+func (oc *OrbitControl) winSize() float32 {
+
+	width, size := window.Get().GetSize()
+	if oc.cam.Axis() == camera.Horizontal {
+		size = width
+	}
+	return float32(size)
 }
 
 // mouse event
@@ -345,171 +326,5 @@ type mouseEvent struct {
 type keyEvent struct {
 	Key       window.Key
 	IsPressed bool
-	Shift     bool
-	Control   bool
-}
-
-// Called when mouse button event is received
-func (oc *OrbitControl) OnMouse(mev *mouseEvent) {
-
-	// If control not enabled ignore event
-	if !oc.Enabled {
-		return
-	}
-
-	// Mouse button pressed
-	if mev.MouseDown {
-		gui.Manager().SetCursorFocus(oc)
-		// Left button pressed sets Rotate state
-		if mev.Button == window.MouseButtonLeft {
-			if !oc.EnableRotate {
-				return
-			}
-			oc.state = stateRotate
-			oc.rotateStart.Set(float32(mev.X), float32(mev.Y))
-		} else
-		// Middle button pressed sets Zoom state
-		if mev.Button == window.MouseButtonMiddle {
-			if !oc.EnableZoom {
-				return
-			}
-			oc.state = stateZoom
-			oc.zoomStart = float32(mev.Y)
-		} else
-		// Right button pressed sets Pan state
-		if mev.Button == window.MouseButtonRight {
-			if !oc.EnablePan {
-				return
-			}
-			oc.state = statePan
-			oc.panStart.Set(float32(mev.X), float32(mev.Y))
-		}
-		return
-	} else {
-		gui.Manager().SetCursorFocus(nil)
-		oc.state = stateNone
-
-	}
-}
-
-// Called when cursor position event is received
-func (oc *OrbitControl) OnCursorPos(mev *mouseEvent) {
-
-	// If control not enabled ignore event
-	if !oc.Enabled {
-		return
-	}
-
-	// Rotation
-	if oc.state == stateRotate {
-		oc.rotateEnd.Set(mev.X, mev.Y)
-		oc.rotateDelta.SubVectors(&oc.rotateEnd, &oc.rotateStart)
-		oc.rotateStart = oc.rotateEnd
-		// rotating across whole screen goes 360 degrees around
-		width, height := window.Get().GetSize()
-		oc.RotateLeft(2 * math32.Pi * oc.rotateDelta.X / float32(width) * oc.RotateSpeed)
-		// rotating up and down along whole screen attempts to go 360, but limited to 180
-		oc.RotateUp(2 * math32.Pi * oc.rotateDelta.Y / float32(height) * oc.RotateSpeed)
-		return
-	}
-
-	// Panning
-	if oc.state == statePan {
-		oc.panEnd.Set(mev.X, mev.Y)
-		oc.panDelta.SubVectors(&oc.panEnd, &oc.panStart)
-		oc.panStart = oc.panEnd
-		oc.Pan(oc.panDelta.X, oc.panDelta.Y)
-		return
-	}
-
-	// Zooming
-	if oc.state == stateZoom {
-		oc.zoomEnd = mev.Y
-		oc.zoomDelta = oc.zoomEnd - oc.zoomStart
-		oc.zoomStart = oc.zoomEnd
-		oc.Zoom(oc.zoomDelta)
-	}
-}
-
-// Called when mouse button scroll event is received
-func (oc *OrbitControl) OnScroll(mev *mouseEvent) {
-
-	if !oc.Enabled || !oc.EnableZoom || oc.state != stateNone {
-		return
-	}
-	oc.Zoom(-mev.Y)
-}
-
-// Called when key is pressed, released or repeats.
-func (oc *OrbitControl) OnKey(kev *keyEvent) {
-
-	if !oc.Enabled || !oc.EnableKeys {
-		return
-	}
-
-	if oc.EnablePan && kev.Control == false && kev.Shift == false {
-		switch kev.Key {
-		case window.KeyUp:
-			oc.Pan(0, oc.KeyPanSpeed)
-		case window.KeyDown:
-			oc.Pan(0, -oc.KeyPanSpeed)
-		case window.KeyLeft:
-			oc.Pan(oc.KeyPanSpeed, 0)
-		case window.KeyRight:
-			oc.Pan(-oc.KeyPanSpeed, 0)
-		}
-	}
-
-	if oc.EnableRotate && kev.Shift == true {
-		switch kev.Key {
-		case window.KeyUp:
-			oc.RotateUp(oc.KeyRotateSpeed)
-		case window.KeyDown:
-			oc.RotateUp(-oc.KeyRotateSpeed)
-		case window.KeyLeft:
-			oc.RotateLeft(-oc.KeyRotateSpeed)
-		case window.KeyRight:
-			oc.RotateLeft(oc.KeyRotateSpeed)
-		}
-	}
-
-	if oc.EnableZoom && kev.Control == true {
-		switch kev.Key {
-		case window.KeyUp:
-			oc.Zoom(-1.0)
-		case window.KeyDown:
-			oc.Zoom(1.0)
-		}
-	}
-}
-
-func (oc *OrbitControl) pan(deltaX, deltaY float32, swidth, sheight int) {
-
-	// Perspective camera
-	if oc.camPersp != nil {
-		position := oc.cam.Position()
-		target := oc.cam.Target()
-		offset := position.Clone().Sub(&target)
-		targetDistance := offset.Length()
-		// Half the FOV is center to top of screen
-		targetDistance += math32.Tan((oc.camPersp.Fov() / 2.0) * math32.Pi / 180.0)
-		// we actually don't use screenWidth, since perspective camera is fixed to screen height
-		oc.panLeft(2 * deltaX * targetDistance / float32(sheight))
-		oc.panUp(2 * deltaY * targetDistance / float32(sheight))
-		return
-	}
-	// Orthographic camera
-	left, right, top, bottom, _, _ := oc.camOrtho.Planes()
-	oc.panLeft(deltaX * (right - left) / float32(swidth))
-	oc.panUp(deltaY * (top - bottom) / float32(sheight))
-}
-
-func (oc *OrbitControl) panLeft(distance float32) {
-
-	oc.panOffset.X += distance
-}
-
-func (oc *OrbitControl) panUp(distance float32) {
-
-	oc.panOffset.Y += distance
+	Mods      int
 }

@@ -4,16 +4,16 @@ import (
 	"log"
 	"time"
 
+	"github.com/g3n/engine/app"
 	"github.com/g3n/engine/camera"
 	"github.com/g3n/engine/core"
 	"github.com/g3n/engine/gls"
 	"github.com/g3n/engine/graphic"
 	"github.com/g3n/engine/light"
-	"github.com/g3n/engine/renderer"
-	"github.com/g3n/engine/util/logger"
-	"github.com/g3n/engine/app"
 	"github.com/g3n/engine/material"
 	"github.com/g3n/engine/math32"
+	"github.com/g3n/engine/renderer"
+	"github.com/g3n/engine/util/logger"
 )
 
 type ImageSettings struct {
@@ -40,10 +40,8 @@ type RenderingApp struct {
 	log                *logger.Logger // Application logger
 	scene              *core.Node     // Scene rendered
 
-	camPersp *camera.Perspective  // Perspective camera
-	camOrtho *camera.Orthographic // Orthographic camera
-	camera   camera.ICamera       // Current camera
-	orbit    *OrbitControl        // Camera orbit controller
+	camera *camera.Camera // Current camera
+	orbit  *OrbitControl  // Camera orbit controller
 }
 
 func LoadRenderingApp(sessionId string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
@@ -104,14 +102,8 @@ func (app *RenderingApp) SetupScene() {
 	// Create perspective camera
 	width, height := app.GetSize()
 	aspect := float32(width) / float32(height)
-	app.camPersp = camera.NewPerspective(65, aspect, 0.01, 1000)
-	app.camera = app.camPersp // Default camera is perspective
-
-	// Create orthographic camera
-	app.camOrtho = camera.NewOrthographic(-2, 2, 2, -2, 0.01, 1000)
-
-	// Add camera to scene (important for audio demos)
-	app.scene.Add(app.camera.GetCamera())
+	app.camera = camera.New(aspect)
+	app.scene.Add(app.camera) // Add camera to scene (important for audio demos)
 
 	amb := light.NewAmbient(&math32.Color{0.2, 0.2, 0.2}, 1.0)
 	app.scene.Add(amb)
@@ -122,12 +114,6 @@ func (app *RenderingApp) SetupScene() {
 	plight.SetQuadraticDecay(.001)
 	app.scene.Add(plight)
 
-	app.camera.GetCamera().SetPosition(12, 1, 5)
-
-	p := math32.Vector3{X: 0, Y: 0, Z: 0}
-	app.camera.GetCamera().LookAt(&p)
-	app.camPersp.SetFov(65)
 	app.ZoomExtent()
 	app.orbit = NewOrbitControl(app.camera)
-	app.orbit.Enabled = true
 }

@@ -42,7 +42,7 @@ func (app *RenderingApp) FocusOnSelection() {
 		return
 	}
 
-	position := app.camera.GetCamera().Position()
+	position := app.camera.Position()
 	app.extentViewOn(bbox, position)
 }
 
@@ -76,19 +76,20 @@ func (app *RenderingApp) SetStandardView(view Standardview) {
 func (app *RenderingApp) extentViewOn(bbox *math32.Box3, position math32.Vector3) {
 	C := bbox.Center(nil)
 	r := C.DistanceTo(&bbox.Max)
-	a := app.camPersp.Fov()
+	a := app.camera.Fov()
 	d := r / math32.Sin(a/2)
 	P := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
 	dir := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
 	P.Add(((position.Sub(C)).Normalize().MultiplyScalar(d)))
 	dir.Sub(&P)
-	app.camera.GetCamera().SetPositionVec(&P)
-	app.camera.GetCamera().LookAt(C)
+	app.camera.SetPositionVec(&P)
+	up := math32.Vector3{X: 0, Y: 1, Z: 0}
+	app.camera.LookAt(C, &up)
 }
 
 // ZoomExtent zooms to sceene extents
 func (app *RenderingApp) ZoomExtent() {
-	pos := app.camera.GetCamera().Position()
+	pos := app.camera.Position()
 	bbox := app.scene.ChildAt(0).BoundingBox()
 	app.extentViewOn(&bbox, pos)
 }

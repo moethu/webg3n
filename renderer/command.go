@@ -87,18 +87,18 @@ func (app *RenderingApp) commandLoop() {
 		switch cmd.Cmd {
 		case "":
 			cev := mouseEvent{X: cmd.X, Y: cmd.Y}
-			app.orbit.OnCursorPos(&cev)
+			app.orbit.onCursor(&cev)
 		case "mousedown":
 			mev := mouseEvent{X: cmd.X, Y: cmd.Y,
 				Button: mapMouseButton(cmd.Val), MouseDown: true}
-			app.orbit.OnMouse(&mev)
+			app.orbit.onMouse(&mev)
 		case "zoom":
 			mev := mouseEvent{X: cmd.X, Y: cmd.Y}
-			app.orbit.OnScroll(&mev)
+			app.orbit.onScroll(&mev)
 		case "mouseup":
 			mev := mouseEvent{X: cmd.X, Y: cmd.Y,
 				Button: mapMouseButton(cmd.Val), MouseDown: false}
-			app.orbit.OnMouse(&mev)
+			app.orbit.onMouse(&mev)
 
 			// mouse left click
 			if cmd.Val == "0" && !cmd.Moved {
@@ -118,8 +118,8 @@ func (app *RenderingApp) commandLoop() {
 				app.respondToClient("userdata", fmt.Sprintf("%v", node.UserData()))
 			}
 		case "keydown":
-			kev := keyEvent{Key: mapKey(cmd.Val), IsPressed: true}
-			app.orbit.OnKey(&kev)
+			kev := keyEvent{Key: mapKey(cmd.Val), IsPressed: true, Mods: 0}
+			app.orbit.onKey(&kev)
 		case "view":
 			app.SetStandardView(mapView(cmd.Val))
 		case "zoomextent":
@@ -160,11 +160,12 @@ func (app *RenderingApp) commandLoop() {
 		case "fov":
 			fov, err := strconv.Atoi(cmd.Val)
 			if err == nil {
-				app.camPersp.SetFov(float32(getValueInRange(fov, 5, 120)))
+				app.camera.SetFov(float32(getValueInRange(fov, 5, 120)))
 			}
 		case "close":
 			app.log.Info("close")
-			//app.Window().SetShouldClose(true)
+			app.Exit()
+			//app.IWindow.(*window.GlfwWindow).SetShouldClose(true)
 		default:
 			app.log.Info("Unknown Command: " + cmd.Cmd)
 		}

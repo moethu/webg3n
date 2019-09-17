@@ -23,7 +23,7 @@ On the other hand it shifts the bottleneck from the client's rendering capabilit
 
 ## Requirements
 
-Requires this modified [G3N engine](https://github.com/moethu/engine) and its [dependencies](https://github.com/moethu/engine#dependencies)
+Requires this modified [G3N engine](https://github.com/g3n/engine) and its [dependencies](https://github.com/g3n/engine#dependencies)
 
 ## Example
 
