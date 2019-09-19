@@ -80,7 +80,7 @@ func (app *RenderingApp) extentViewOn(bbox *math32.Box3, position math32.Vector3
 	d := r / math32.Sin(a/2)
 	P := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
 	dir := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
-	P.Add(((position.Sub(C)).Normalize().MultiplyScalar(d)))
+	P.Add(((position.Sub(C)).Normalize().MultiplyScalar(d * -1)))
 	dir.Sub(&P)
 	app.camera.SetPositionVec(&P)
 	up := math32.Vector3{X: 0, Y: 1, Z: 0}
