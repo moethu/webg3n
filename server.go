@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"webg3n/renderer"
+	"github.com/moethu/webg3n/renderer"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

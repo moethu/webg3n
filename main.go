@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"engine/window"
+	"github.com/g3n/engine/window"
 	"flag"
 	"log"
 	"net/http"

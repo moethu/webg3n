@@ -1,9 +1,9 @@
 package renderer
 
 import (
-	"engine/core"
-	"engine/graphic"
-	"engine/math32"
+	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/graphic"
+	"github.com/g3n/engine/math32"
 )
 
 // selectNode uses a raycaster to get the selected node.

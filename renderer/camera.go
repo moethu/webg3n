@@ -1,7 +1,7 @@
 package renderer
 
 import (
-	"engine/math32"
+	"github.com/g3n/engine/math32"
 	"log"
 )
 

@@ -2,7 +2,7 @@ package renderer
 
 import (
 	"encoding/json"
-	"engine/window"
+	"github.com/g3n/engine/window"
 	"fmt"
 	"strconv"
 	"strings"

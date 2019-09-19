@@ -3,14 +3,14 @@ package renderer
 import (
 	"log"
 
-	"engine/core"
-	"engine/graphic"
-	"engine/light"
+	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/graphic"
+	"github.com/g3n/engine/light"
 
-	"engine/material"
-	"engine/math32"
-	"engine/util/application"
-	"engine/util/logger"
+	"github.com/g3n/engine/material"
+	"github.com/g3n/engine/math32"
+	"github.com/g3n/engine/util/application"
+	"github.com/g3n/engine/util/logger"
 )
 
 type ImageSettings struct {

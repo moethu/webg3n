@@ -1,8 +1,8 @@
 package renderer
 
 import (
-	"engine/core"
-	"engine/loader/gltf"
+	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/loader/gltf"
 	"fmt"
 	"path/filepath"
 	"strconv"
