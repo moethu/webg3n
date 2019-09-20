@@ -109,8 +109,8 @@ func serveWebsocket(c *gin.Context) {
 
 	// get scene width and height from url query params
 	// default to 800 if they are not set
-	height, err := strconv.Atoi(c.Request.URL.Query().Get("h"))
-	if err != nil {
+	height := getParameterDefault(c, "h", 800)
+	width := getParameterDefault(c, "w", 800)
 		log.Println(err)
 		height = 800
 	}
@@ -121,20 +121,30 @@ func serveWebsocket(c *gin.Context) {
 	}
 
 	modelPath := "models/"
+	defaultModel := "Cathedral.glb"
 	model := c.Request.URL.Query().Get("model")
 	if model == "" {
-		model = "Cathedral.glb"
+		model = defaultModel
 	}
 	if _, err := os.Stat(modelPath + model); os.IsNotExist(err) {
-		model = "Cathedral.glb"
+		model = defaultModel
 	}
 
 	// run 3d application in separate go routine
-	// this is currently not threadafe but it's a single 3d app per socket
 	go renderer.LoadRenderingApp(&client.app, sessionId.String(), height, width, c_write, c_read, modelPath+model)
 
 	// run reader and writer in two different go routines
 	// so they can act concurrently
 	go client.streamReader()
 	go client.streamWriter()
+}
+
+// getParameterDefault gets a parameter and returns default value if its not set
+func getParameterDefault(c *gin.Context, name string, defaultValue int) int {
+	val, err := strconv.Atoi(c.Request.URL.Query().Get(name))
+	if err != nil {
+		log.Println(err)
+		return defaultValue
+	}
+	return val
 }
