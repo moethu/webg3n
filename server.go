@@ -27,8 +27,8 @@ type Client struct {
 	conn *websocket.Conn
 
 	// Buffered channels messages.
-	write chan []byte
-	read  chan []byte
+	write chan []byte // images and data to client
+	read  chan []byte // commands from client
 }
 
 // streamReader reads messages from the websocket connection and fowards them to the read channel
@@ -38,6 +38,7 @@ func (c *Client) streamReader() {
 	}()
 	c.conn.SetReadLimit(maxMessageSize)
 	c.conn.SetReadDeadline(time.Now().Add(readTimeout))
+	// SetPongHandler sets the handler for pong messages received from the peer.
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(readTimeout)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
@@ -47,6 +48,7 @@ func (c *Client) streamReader() {
 			}
 			break
 		}
+		// feed message to command channel
 		c.read <- message
 	}
 }
@@ -59,6 +61,8 @@ func (c *Client) streamWriter() {
 		c.conn.Close()
 	}()
 	for {
+		// Go’s select lets you wait on multiple channel operations.
+		// We’ll use select to await both of these values simultaneously.
 		select {
 		case message, ok := <-c.write:
 			c.conn.SetWriteDeadline(time.Now().Add(writeTimeout))
@@ -67,12 +71,15 @@ func (c *Client) streamWriter() {
 				return
 			}
 
+			// NextWriter returns a writer for the next message to send.
+			// The writer's Close method flushes the complete message to the network.
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
 			w.Write(message)
 
+			// Add queued messages to the current websocket message
 			n := len(c.write)
 			for i := 0; i < n; i++ {
 				w.Write(<-c.write)
@@ -81,7 +88,13 @@ func (c *Client) streamWriter() {
 			if err := w.Close(); err != nil {
 				return
 			}
+
+		//a channel that will send the time with a period specified by the duration argument
 		case <-ticker.C:
+			// SetWriteDeadline sets the deadline for future Write calls
+			// and any currently-blocked Write call.
+			// Even if write times out, it may return n > 0, indicating that
+			// some of the data was successfully written.
 			c.conn.SetWriteDeadline(time.Now().Add(writeTimeout))
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
@@ -111,14 +124,6 @@ func serveWebsocket(c *gin.Context) {
 	// default to 800 if they are not set
 	height := getParameterDefault(c, "h", 800)
 	width := getParameterDefault(c, "w", 800)
-		log.Println(err)
-		height = 800
-	}
-	width, err := strconv.Atoi(c.Request.URL.Query().Get("w"))
-	if err != nil {
-		log.Println(err)
-		width = 800
-	}
 
 	modelPath := "models/"
 	defaultModel := "Cathedral.glb"

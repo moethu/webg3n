@@ -43,6 +43,8 @@ func (app *RenderingApp) makeScreenShot() {
 	opt.Quality = app.imageSettings.jpegQuality
 	jpeg.Encode(buf, img, &opt)
 	imageBit := buf.Bytes()
+
+	// could use encode directly
 	imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))
 	app.c_imagestream <- []byte(imgBase64Str)
 }
