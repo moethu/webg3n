@@ -7,6 +7,8 @@ window.addEventListener("load", function(evt) {
     var selection_ui = document.getElementById("selection");
     var ws;
     var mouse_moved = false;
+    var prev_x = undefined;
+    var prev_y = undefined;
 
     spinner.style.display = 'none';
 
@@ -84,11 +86,21 @@ window.addEventListener("load", function(evt) {
 	canvas.onmousedown = function(evt){
 		if (!ws) {return false;}
         evt.preventDefault();
-        mouse_moved = false;
+
 		var rect = evt.target.getBoundingClientRect();
 		var x = (evt.clientX - rect.left); 
-		var y = (evt.clientY - rect.top); 
-		ws.send(`{"x":${x},"y":${y}, "cmd":"mousedown", "val":"${evt.button}"}`);
+        var y = (evt.clientY - rect.top); 
+        if (prev_x && prev_y) {
+            console.log(Math.abs(prev_x - x), Math.abs(prev_y == y) )
+            if (Math.abs(prev_x - x) < 1 && Math.abs(prev_y == y) < 1) {
+                mouse_moved = false;
+            }else {
+                mouse_moved = true;
+            }
+        }
+        ws.send(`{"x":${x},"y":${y}, "cmd":"mousedown", "val":"${evt.button}", "moved":${mouse_moved}}`);
+        prev_x = x;
+        prev_y = y;
 		return false;	
 	}
 
