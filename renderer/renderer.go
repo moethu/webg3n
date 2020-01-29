@@ -22,6 +22,8 @@ type ImageSettings struct {
 	invert      bool
 }
 
+var lowRenderQuality = 20
+
 type RenderingApp struct {
 	application.Application
 	x, y, z            float32
@@ -36,6 +38,7 @@ type RenderingApp struct {
 	nodeBuffer         map[string]*core.Node
 }
 
+// LoadRenderingApp loads the rendering application
 func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
 	a, err := application.Create(application.Options{
 		Title:       "g3nServerApplication",

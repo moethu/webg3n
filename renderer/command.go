@@ -2,10 +2,11 @@ package renderer
 
 import (
 	"encoding/json"
-	"github.com/g3n/engine/window"
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/g3n/engine/window"
 )
 
 type Command struct {
@@ -71,7 +72,7 @@ func (app *RenderingApp) commandLoop() {
 				Action: window.Press,
 				Button: mapMouseButton(cmd.Val)}
 			if cmd.Moved {
-				app.imageSettings.jpegQuality = 30
+				app.imageSettings.jpegQuality = lowRenderQuality
 			}
 			app.Orbit().OnMouse(&mev)
 		case "zoom":
@@ -82,7 +83,7 @@ func (app *RenderingApp) commandLoop() {
 				Action: window.Release,
 				Button: mapMouseButton(cmd.Val)}
 
-			app.imageSettings.jpegQuality = 80
+			app.imageSettings.jpegQuality = app.imageSettings.jpegQuality
 			app.Orbit().OnMouse(&mev)
 
 			// mouse left click
@@ -159,6 +160,7 @@ func (app *RenderingApp) commandLoop() {
 	}
 }
 
+// getValueInRange returns a value within bounds
 func getValueInRange(value int, lower int, upper int) int {
 	if value > upper {
 		return upper
