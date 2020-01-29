@@ -9,6 +9,7 @@ import (
 	"github.com/disintegration/imaging"
 )
 
+// onRender event handler for onRender event
 func (a *RenderingApp) onRender(evname string, ev interface{}) {
 	a.makeScreenShot()
 }

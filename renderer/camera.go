@@ -5,10 +5,12 @@ import (
 	"log"
 )
 
+// getCenter gets the centerpoint of a 3D box
 func getCenter(box math32.Box3) *math32.Vector3 {
 	return box.Center(nil)
 }
 
+// focusOnSelection sets the camera focus on the current selection
 func (app *RenderingApp) focusOnSelection() {
 	var bbox *math32.Box3
 	first := true
@@ -39,7 +41,8 @@ func (app *RenderingApp) focusOnSelection() {
 	app.Camera().GetCamera().LookAt(C)
 }
 
-func (app *RenderingApp) setCamera(view string) {
+// getViewVectorByName gets a view direction vector by name
+func getViewVectorByName(view string) math32.Vector3 {
 	modifier := math32.Vector3{X: 0, Y: 0, Z: 0}
 	switch view {
 	case "top":
@@ -55,12 +58,19 @@ func (app *RenderingApp) setCamera(view string) {
 	case "right":
 		modifier.X = -10
 	}
+	return modifier
+}
+
+// setCamera set camera sets a camera standard view by name
+func (app *RenderingApp) setCamera(view string) {
+	modifier := getViewVectorByName(view)
 	bbox := app.Scene().ChildAt(0).BoundingBox()
 	C := bbox.Center(nil)
 	pos := modifier.Add(C)
 	app.focusCameraToCenter(*pos)
 }
 
+// focusCameraToCenter sets the camera focus to the center of the entire model
 func (app *RenderingApp) focusCameraToCenter(position math32.Vector3) {
 	bbox := app.Scene().ChildAt(0).BoundingBox()
 	C := bbox.Center(nil)
@@ -75,6 +85,7 @@ func (app *RenderingApp) focusCameraToCenter(position math32.Vector3) {
 	app.Camera().GetCamera().LookAt(C)
 }
 
+// zoomToExtent zooms the view to extent
 func (app *RenderingApp) zoomToExtent() {
 	pos := app.Camera().GetCamera().Position()
 	app.focusCameraToCenter(pos)

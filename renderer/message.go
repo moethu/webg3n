@@ -7,6 +7,7 @@ type Message struct {
 	Value  string `json:"value"`
 }
 
+// sendMessageToClient sends a message to the client
 func (a *RenderingApp) sendMessageToClient(action string, value string) {
 	m := &Message{Action: action, Value: value}
 	msg_json, err := json.Marshal(m)

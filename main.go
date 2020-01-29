@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"github.com/g3n/engine/window"
 	"flag"
+	"github.com/g3n/engine/window"
 	"log"
 	"net/http"
 	"os"
@@ -60,13 +60,7 @@ func main() {
 	log.Println("Server exiting")
 }
 
-var addr = flag.String("addr", "0.0.0.0:8000", "http service address")
 var upgrader = websocket.Upgrader{}
-
-type RData struct {
-	Image string
-	Stamp time.Time
-}
 
 // Home route, loading template and serving it
 func home(c *gin.Context) {
