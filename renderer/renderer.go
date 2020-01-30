@@ -14,12 +14,13 @@ import (
 )
 
 type ImageSettings struct {
-	jpegQuality int
-	saturation  float64
-	contrast    float64
-	brightness  float64
-	blur        float64
-	invert      bool
+	jpegQualityBuffer int
+	jpegQuality       int
+	saturation        float64
+	contrast          float64
+	brightness        float64
+	blur              float64
+	invert            bool
 }
 
 var lowRenderQuality = 20

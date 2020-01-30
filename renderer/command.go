@@ -71,9 +71,12 @@ func (app *RenderingApp) commandLoop() {
 			mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
 				Action: window.Press,
 				Button: mapMouseButton(cmd.Val)}
+
 			if cmd.Moved {
+				app.imageSettings.jpegQualityBuffer = app.imageSettings.jpegQuality
 				app.imageSettings.jpegQuality = lowRenderQuality
 			}
+
 			app.Orbit().OnMouse(&mev)
 		case "zoom":
 			mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y}
@@ -83,7 +86,7 @@ func (app *RenderingApp) commandLoop() {
 				Action: window.Release,
 				Button: mapMouseButton(cmd.Val)}
 
-			app.imageSettings.jpegQuality = app.imageSettings.jpegQuality
+			app.imageSettings.jpegQuality = app.imageSettings.jpegQualityBuffer
 			app.Orbit().OnMouse(&mev)
 
 			// mouse left click
