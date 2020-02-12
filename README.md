@@ -3,6 +3,8 @@
 
 webg3n is a 3D web-viewer running [G3N](https://github.com/g3n/engine) as a server side OpenGL renderer.
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/moethu/webg3n)](https://goreportcard.com/report/github.com/moethu/webg3n)
+
 ![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot03.png)
 
 ## How it works
