@@ -33,6 +33,20 @@ This implementation comes with a simple webUI, simply go run it and connect to p
 Once you click connect, a g3n window will appear which is the server side rendering screen.
 [Demo video](https://vimeo.com/358812535)
 
+## Features
+
+- mouse navigation
+- keyboard navigation
+- multi-select elements
+- hide and unhide element selection
+- focus on element selection
+- zoom extents
+- default views (top, down, left, right, front, rear)
+- change field of view
+- set compression quality
+- automatically set higher compression while navigating
+- adjust image settings (invert, brightness, contrast, saturation, blur)
+
 ## Contributing
 
 If you find a bug or create a new feature you are encouraged to send pull requests!
