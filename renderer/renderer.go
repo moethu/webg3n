@@ -21,6 +21,7 @@ type ImageSettings struct {
 	brightness        float64
 	blur              float64
 	invert            bool
+	pixelation        float64
 }
 
 var lowRenderQuality = 20

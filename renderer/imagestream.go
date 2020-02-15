@@ -25,6 +25,10 @@ func (app *RenderingApp) makeScreenShot() {
 	img := image.NewNRGBA(image.Rect(0, 0, w, h))
 	img.Pix = data
 
+	if app.imageSettings.pixelation > 1.0 {
+		img = imaging.Fit(img, int(float64(w)/app.imageSettings.pixelation), int(float64(h)/app.imageSettings.pixelation), imaging.NearestNeighbor)
+		img = imaging.Fill(img, w, h, imaging.Center, imaging.NearestNeighbor)
+	}
 	if app.imageSettings.brightness != 0 {
 		img = imaging.AdjustBrightness(img, app.imageSettings.brightness)
 	}

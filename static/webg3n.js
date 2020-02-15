@@ -241,7 +241,8 @@ window.addEventListener("load", function(evt) {
         let saturation = document.getElementById("img_saturation").value
         let brightness = document.getElementById("img_brightness").value
         let blur = document.getElementById("img_blur").value
-        ws.send(`{"cmd":"imagesettings", "val":"${brightness}:${contrast}:${saturation}:${blur}"}`);
+        let pixel = document.getElementById("img_pixel").value
+        ws.send(`{"cmd":"imagesettings", "val":"${brightness}:${contrast}:${saturation}:${blur}:${pixel}"}`);
         return false;
     };
 
@@ -251,7 +252,8 @@ window.addEventListener("load", function(evt) {
         document.getElementById("img_saturation").value = 0
         document.getElementById("img_brightness").value = 0
         document.getElementById("img_blur").value = 0
-        ws.send(`{"cmd":"imagesettings", "val":"0:0:0:0"}`);
+        document.getElementById("img_pixel").value = 1.0
+        ws.send(`{"cmd":"imagesettings", "val":"0:0:0:0:1"}`);
         return false;
     };
 

@@ -126,7 +126,7 @@ func (app *RenderingApp) commandLoop() {
 			}
 		case "imagesettings":
 			s := strings.Split(cmd.Val, ":")
-			if len(s) == 4 {
+			if len(s) == 5 {
 				br, err := strconv.Atoi(s[0])
 				if err == nil {
 					app.imageSettings.brightness = float64(getValueInRange(br, -100, 100))
@@ -142,6 +142,10 @@ func (app *RenderingApp) commandLoop() {
 				bl, err := strconv.Atoi(s[3])
 				if err == nil {
 					app.imageSettings.blur = float64(getValueInRange(bl, 0, 20))
+				}
+				pix, err := strconv.ParseFloat(s[4], 64)
+				if err == nil {
+					app.imageSettings.pixelation = getFloatValueInRange(pix, 1.0, 10.0)
 				}
 			}
 		case "quality":
@@ -165,6 +169,17 @@ func (app *RenderingApp) commandLoop() {
 
 // getValueInRange returns a value within bounds
 func getValueInRange(value int, lower int, upper int) int {
+	if value > upper {
+		return upper
+	} else if value < lower {
+		return lower
+	} else {
+		return value
+	}
+}
+
+// getFloatValueInRange returns a value within bounds
+func getFloatValueInRange(value float64, lower float64, upper float64) float64 {
 	if value > upper {
 		return upper
 	} else if value < lower {
