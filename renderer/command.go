@@ -48,6 +48,16 @@ func mapKey(value string) window.Key {
 	}
 }
 
+func (app *RenderingApp) navigationCompression(active bool) {
+	if active {
+		app.imageSettings.setQuality(lowRenderQuality)
+		app.imageSettings.setPixelation(lowResolution)
+	} else {
+		app.imageSettings.restorePixelation()
+		app.imageSettings.restoreQuality()
+	}
+}
+
 // commandLoop listens for incoming commands and forwards them to the rendering app
 func (app *RenderingApp) commandLoop() {
 	for {
@@ -73,8 +83,7 @@ func (app *RenderingApp) commandLoop() {
 				Button: mapMouseButton(cmd.Val)}
 
 			if cmd.Moved {
-				app.imageSettings.jpegQualityBuffer = app.imageSettings.jpegQuality
-				app.imageSettings.jpegQuality = lowRenderQuality
+				app.navigationCompression(true)
 			}
 
 			app.Orbit().OnMouse(&mev)
@@ -86,7 +95,7 @@ func (app *RenderingApp) commandLoop() {
 				Action: window.Release,
 				Button: mapMouseButton(cmd.Val)}
 
-			app.imageSettings.jpegQuality = app.imageSettings.jpegQualityBuffer
+			app.navigationCompression(false)
 			app.Orbit().OnMouse(&mev)
 
 			// mouse left click

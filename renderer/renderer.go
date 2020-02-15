@@ -22,9 +22,29 @@ type ImageSettings struct {
 	blur              float64
 	invert            bool
 	pixelation        float64
+	pixelationBuffer  float64
+}
+
+func (img *ImageSettings) setPixelation(value float64) {
+	img.pixelationBuffer = img.pixelation
+	img.pixelation = value
+}
+
+func (img *ImageSettings) setQuality(value int) {
+	img.jpegQualityBuffer = img.jpegQuality
+	img.jpegQuality = value
+}
+
+func (img *ImageSettings) restoreQuality() {
+	img.jpegQuality = img.jpegQualityBuffer
+}
+
+func (img *ImageSettings) restorePixelation() {
+	img.pixelation = img.pixelationBuffer
 }
 
 var lowRenderQuality = 20
+var lowResolution = 1.2
 
 type RenderingApp struct {
 	application.Application
