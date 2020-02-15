@@ -2,6 +2,7 @@ package renderer
 
 import (
 	"bytes"
+	"crypto/md5"
 	"encoding/base64"
 	"image"
 	"image/jpeg"
@@ -13,6 +14,8 @@ import (
 func (a *RenderingApp) onRender(evname string, ev interface{}) {
 	a.makeScreenShot()
 }
+
+var md5SumBuffer [16]byte
 
 // makeScreenShot reads the opengl buffer, encodes it as jpeg and sends it to the channel
 func (app *RenderingApp) makeScreenShot() {
@@ -45,7 +48,12 @@ func (app *RenderingApp) makeScreenShot() {
 	jpeg.Encode(buf, img, &opt)
 	imageBit := buf.Bytes()
 
-	// could use encode directly
-	imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))
-	app.c_imagestream <- []byte(imgBase64Str)
+	// get md5 checksum from image to check if image changed
+	// only send a new image to the client if there has been any change.
+	md := md5.Sum(imageBit)
+	if md5SumBuffer != md {
+		imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))
+		app.c_imagestream <- []byte(imgBase64Str)
+	}
+	md5SumBuffer = md
 }
