@@ -50,9 +50,10 @@ window.addEventListener("load", function(evt) {
                 }
 			}else{
 				var ctx = document.getElementById('canvas').getContext('2d');
-				var img = new Image();
-				img.onload = function() {ctx.drawImage(img, 0, 0);};
-				img.src = 'data:image/jpeg;base64,'+evt.data;
+				var img = new Image(w,h);
+				img.onload = function() {ctx.drawImage(img, 0,0,w, h);};
+                img.src = 'data:image/jpeg;base64,'+evt.data;
+                console.log(img.height)
 			}
         }
         ws.onerror = function(evt) {
