@@ -90,26 +90,30 @@ window.addEventListener("load", function(evt) {
 		var rect = evt.target.getBoundingClientRect();
 		var x = (evt.clientX - rect.left); 
         var y = (evt.clientY - rect.top); 
-        if (prev_x && prev_y) {
-            console.log(Math.abs(prev_x - x), Math.abs(prev_y == y) )
-            if (Math.abs(prev_x - x) < 1 && Math.abs(prev_y == y) < 1) {
-                mouse_moved = false;
-            }else {
-                mouse_moved = true;
-            }
-        }
+        checkMouseMoved(x,y);
         ws.send(`{"x":${x},"y":${y}, "cmd":"mousedown", "val":"${evt.button}", "moved":${mouse_moved}}`);
         prev_x = x;
         prev_y = y;
 		return false;	
 	}
 
+    function checkMouseMoved(x,y){
+        if (prev_x && prev_y) {
+            if (Math.abs(prev_x - x) < 1 && Math.abs(prev_y - y) < 1) {
+                mouse_moved = false;
+            }else {
+                mouse_moved = true;
+            }
+        }
+    }
+
     canvas.onmouseup = function(evt){
 		evt.preventDefault();
 		if (!ws) {return false;}
 		var rect = evt.target.getBoundingClientRect();
 		var x = (evt.clientX - rect.left); 
-		var y = (evt.clientY - rect.top); 
+        var y = (evt.clientY - rect.top); 
+        checkMouseMoved(x,y);
         ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}, "ctrl":${evt.ctrlKey}}`);
 
         // open context menu if mouse hasn't been moved
