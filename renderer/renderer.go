@@ -13,7 +13,7 @@ import (
 	"github.com/g3n/engine/util/logger"
 )
 
-// Image settings for rendering image
+// ImageSettings for rendering image
 type ImageSettings struct {
 	saturation   float64
 	contrast     float64
@@ -47,7 +47,7 @@ func (i *ImageSettings) getPixelation() float64 {
 	}
 }
 
-// Image quality settings for still and navigating situations
+// Quality Image quality settings for still and navigating situations
 type Quality struct {
 	jpegQualityStill int
 	jpegQualityNav   int
@@ -64,18 +64,19 @@ var mediumQ Quality = Quality{jpegQualityStill: 80, jpegQualityNav: 60, pixelati
 // low image quality definition
 var lowQ Quality = Quality{jpegQualityStill: 60, jpegQualityNav: 40, pixelationStill: 1.0, pixelationNav: 1.5}
 
+// RenderingApp application settings
 type RenderingApp struct {
 	application.Application
-	x, y, z            float32
-	c_imagestream      chan []byte
-	c_commands         chan []byte
-	Width              int
-	Height             int
-	imageSettings      ImageSettings
-	selectionBuffer    map[core.INode][]graphic.GraphicMaterial
-	selection_material material.IMaterial
-	modelpath          string
-	nodeBuffer         map[string]*core.Node
+	x, y, z           float32
+	cImagestream      chan []byte
+	cCommands         chan []byte
+	Width             int
+	Height            int
+	imageSettings     ImageSettings
+	selectionBuffer   map[core.INode][]graphic.GraphicMaterial
+	selectionMaterial material.IMaterial
+	modelpath         string
+	nodeBuffer        map[string]*core.Node
 }
 
 // LoadRenderingApp loads the rendering application
@@ -109,8 +110,8 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 		quality:    highQ,
 	}
 
-	app.c_imagestream = write
-	app.c_commands = read
+	app.cImagestream = write
+	app.cCommands = read
 	app.modelpath = modelpath
 	app.setupScene()
 	go app.commandLoop()
@@ -124,7 +125,7 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 
 // setupScene sets up the current scene
 func (app *RenderingApp) setupScene() {
-	app.selection_material = material.NewPhong(math32.NewColor("Red"))
+	app.selectionMaterial = material.NewPhong(math32.NewColor("Red"))
 	app.selectionBuffer = make(map[core.INode][]graphic.GraphicMaterial)
 	app.nodeBuffer = make(map[string]*core.Node)
 

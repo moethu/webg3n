@@ -9,9 +9,7 @@ import (
 func TestGetCenter(t *testing.T) {
 	b := math32.Box3{Min: math32.Vector3{X: 0, Y: 0, Z: 0}, Max: math32.Vector3{X: 10, Y: 10, Z: 100}}
 	v := getCenter(b)
-	if v.X == 5 && v.Y == 5 && v.Z == 50 {
-		return
-	} else {
+	if v.X != 5 || v.Y != 5 || v.Z != 50 {
 		t.Error("Not Centered")
 	}
 }

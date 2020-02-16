@@ -56,7 +56,7 @@ func (app *RenderingApp) makeScreenShot() {
 	md := md5.Sum(imageBit)
 	if md5SumBuffer != md {
 		imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))
-		app.c_imagestream <- []byte(imgBase64Str)
+		app.cImagestream <- []byte(imgBase64Str)
 	}
 	md5SumBuffer = md
 }

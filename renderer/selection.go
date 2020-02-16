@@ -62,7 +62,7 @@ func (app *RenderingApp) changeNodeMaterial(inode core.INode) {
 			}
 			app.selectionBuffer[inode] = materials
 			gfx.ClearMaterials()
-			gfx.AddMaterial(gnode, app.selection_material, 0, 0)
+			gfx.AddMaterial(gnode, app.selectionMaterial, 0, 0)
 		}
 	}
 }

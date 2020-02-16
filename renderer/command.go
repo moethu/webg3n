@@ -9,6 +9,7 @@ import (
 	"github.com/g3n/engine/window"
 )
 
+// Command received from client
 type Command struct {
 	X     float32
 	Y     float32
@@ -51,7 +52,7 @@ func mapKey(value string) window.Key {
 // commandLoop listens for incoming commands and forwards them to the rendering app
 func (app *RenderingApp) commandLoop() {
 	for {
-		message := <-app.c_commands
+		message := <-app.cCommands
 
 		cmd := Command{}
 		err := json.Unmarshal(message, &cmd)
@@ -93,7 +94,7 @@ func (app *RenderingApp) commandLoop() {
 				app.selectNode(cmd.X, cmd.Y, cmd.Ctrl)
 			}
 		case "hide":
-			for inode, _ := range app.selectionBuffer {
+			for inode := range app.selectionBuffer {
 				inode.GetNode().SetVisible(false)
 			}
 			app.resetSelection()

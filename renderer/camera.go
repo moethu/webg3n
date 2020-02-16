@@ -14,7 +14,7 @@ func getCenter(box math32.Box3) *math32.Vector3 {
 func (app *RenderingApp) focusOnSelection() {
 	var bbox *math32.Box3
 	first := true
-	for inode, _ := range app.selectionBuffer {
+	for inode := range app.selectionBuffer {
 		tmp := inode.BoundingBox()
 		if first {
 			bbox = math32.NewBox3(&tmp.Min, &tmp.Max)
