@@ -5,6 +5,7 @@ require (
 	github.com/g3n/engine v0.1.0
 	github.com/gin-gonic/gin v1.4.0
 	github.com/gorilla/websocket v1.4.1
+	github.com/llgcode/draw2d v0.0.0-20200110163050-b96d8208fcfc
 	github.com/satori/go.uuid v1.2.0
 )
 

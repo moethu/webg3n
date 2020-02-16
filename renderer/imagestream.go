@@ -46,6 +46,11 @@ func (app *RenderingApp) makeScreenShot() {
 
 	img = imaging.FlipV(img)
 	buf := new(bytes.Buffer)
+
+	if app.Debug {
+		img = DrawByteGraph(img)
+	}
+
 	var opt jpeg.Options
 	opt.Quality = app.imageSettings.getJpegQuality()
 	jpeg.Encode(buf, img, &opt)
@@ -56,6 +61,9 @@ func (app *RenderingApp) makeScreenShot() {
 	md := md5.Sum(imageBit)
 	if md5SumBuffer != md {
 		imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))
+		if app.Debug {
+			AddToByteBuffer(len(imgBase64Str))
+		}
 		app.cImagestream <- []byte(imgBase64Str)
 	}
 	md5SumBuffer = md

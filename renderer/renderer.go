@@ -77,6 +77,7 @@ type RenderingApp struct {
 	selectionMaterial material.IMaterial
 	modelpath         string
 	nodeBuffer        map[string]*core.Node
+	Debug             bool
 }
 
 // LoadRenderingApp loads the rendering application
