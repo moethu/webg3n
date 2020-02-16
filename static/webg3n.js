@@ -274,7 +274,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"quality", "val":"20"}`);
+        ws.send(`{"cmd":"quality", "val":"2"}`);
         return false;
     };
 
@@ -282,7 +282,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"quality", "val":"60"}`);
+        ws.send(`{"cmd":"quality", "val":"1"}`);
         return false;
     };
 
@@ -290,7 +290,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"quality", "val":"90"}`);
+        ws.send(`{"cmd":"quality", "val":"0"}`);
         return false;
     };
 

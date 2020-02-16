@@ -13,38 +13,56 @@ import (
 	"github.com/g3n/engine/util/logger"
 )
 
+// Image settings for rendering image
 type ImageSettings struct {
-	jpegQualityBuffer int
-	jpegQuality       int
-	saturation        float64
-	contrast          float64
-	brightness        float64
-	blur              float64
-	invert            bool
-	pixelation        float64
-	pixelationBuffer  float64
+	saturation   float64
+	contrast     float64
+	brightness   float64
+	blur         float64
+	pixelation   float64
+	invert       bool
+	quality      Quality
+	isNavigating bool
 }
 
-func (img *ImageSettings) setPixelation(value float64) {
-	img.pixelationBuffer = img.pixelation
-	img.pixelation = value
+// getJpegQuality returns quality depending on navigation movement
+func (i *ImageSettings) getJpegQuality() int {
+	if i.isNavigating {
+		return i.quality.jpegQualityNav
+	} else {
+		return i.quality.jpegQualityStill
+	}
 }
 
-func (img *ImageSettings) setQuality(value int) {
-	img.jpegQualityBuffer = img.jpegQuality
-	img.jpegQuality = value
+// getPixelation returns pixelation depending on navigation movement
+// A global pixelation level will override preset pixelation levels
+func (i *ImageSettings) getPixelation() float64 {
+	if i.pixelation > 1.0 {
+		return i.pixelation
+	}
+	if i.isNavigating {
+		return i.quality.pixelationNav
+	} else {
+		return i.quality.pixelationStill
+	}
 }
 
-func (img *ImageSettings) restoreQuality() {
-	img.jpegQuality = img.jpegQualityBuffer
+// Image quality settings for still and navigating situations
+type Quality struct {
+	jpegQualityStill int
+	jpegQualityNav   int
+	pixelationStill  float64
+	pixelationNav    float64
 }
 
-func (img *ImageSettings) restorePixelation() {
-	img.pixelation = img.pixelationBuffer
-}
+// high image quality definition
+var highQ Quality = Quality{jpegQualityStill: 100, jpegQualityNav: 90, pixelationStill: 1.0, pixelationNav: 1.0}
 
-var lowRenderQuality = 20
-var lowResolution = 1.2
+// medium image quality definition
+var mediumQ Quality = Quality{jpegQualityStill: 80, jpegQualityNav: 60, pixelationStill: 1.0, pixelationNav: 1.2}
+
+// low image quality definition
+var lowQ Quality = Quality{jpegQualityStill: 60, jpegQualityNav: 40, pixelationStill: 1.0, pixelationNav: 1.5}
 
 type RenderingApp struct {
 	application.Application
@@ -82,12 +100,13 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 	app.Height = h
 
 	app.imageSettings = ImageSettings{
-		jpegQuality: 60,
-		saturation:  0,
-		brightness:  0,
-		contrast:    0,
-		blur:        0,
-		invert:      false,
+		saturation: 0,
+		brightness: 0,
+		contrast:   0,
+		blur:       0,
+		pixelation: 1.0,
+		invert:     false,
+		quality:    highQ,
 	}
 
 	app.c_imagestream = write

@@ -25,8 +25,8 @@ func (app *RenderingApp) makeScreenShot() {
 	img := image.NewNRGBA(image.Rect(0, 0, w, h))
 	img.Pix = data
 
-	if app.imageSettings.pixelation > 1.0 {
-		img = imaging.Fit(img, int(float64(w)/app.imageSettings.pixelation), int(float64(h)/app.imageSettings.pixelation), imaging.NearestNeighbor)
+	if app.imageSettings.getPixelation() > 1.0 {
+		img = imaging.Fit(img, int(float64(w)/app.imageSettings.getPixelation()), int(float64(h)/app.imageSettings.getPixelation()), imaging.NearestNeighbor)
 	}
 	if app.imageSettings.brightness != 0 {
 		img = imaging.AdjustBrightness(img, app.imageSettings.brightness)
@@ -47,7 +47,7 @@ func (app *RenderingApp) makeScreenShot() {
 	img = imaging.FlipV(img)
 	buf := new(bytes.Buffer)
 	var opt jpeg.Options
-	opt.Quality = app.imageSettings.jpegQuality
+	opt.Quality = app.imageSettings.getJpegQuality()
 	jpeg.Encode(buf, img, &opt)
 	imageBit := buf.Bytes()
 
