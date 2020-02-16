@@ -1,7 +1,20 @@
-
 let host = document.currentScript.getAttribute('host');
 
-window.addEventListener("load", function(evt) {
+$(document).ready(function () {
+    console.log("ready!");
+    fitToContainer(canvas)
+});
+
+function fitToContainer(canvas) {
+    // Make it visually fill the positioned parent
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    // ...then set the internal size to match
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
+}
+
+window.addEventListener("load", function (evt) {
     var canvas = document.getElementById("canvas");
     var spinner = document.getElementById("spinner");
     var selection_ui = document.getElementById("selection");
@@ -12,231 +25,279 @@ window.addEventListener("load", function(evt) {
 
     spinner.style.display = 'none';
 
-    var print = function(message) {
+    var print = function (message) {
         console.log(message);
     };
 
-    document.getElementById("open").onclick = function(evt) {
+    document.getElementById("open").onclick = function (evt) {
         if (ws) {
             return false;
-		}
-        h = canvas.getAttribute("height");
-        w = canvas.getAttribute("width");
-		ws = new WebSocket(`${host}?h=${h}&w=${w}`);
-		
-        ws.onopen = function(evt) {
+        }
+
+        h = $('#canvas').height();
+        w = $('#canvas').width();
+        console.log(h, w)
+        ws = new WebSocket(`${host}?h=${h}&w=${w}`);
+
+        ws.onopen = function (evt) {
             print("Connected to Server");
         }
-        ws.onclose = function(evt) {
-			print("Closed Connection");
+        ws.onclose = function (evt) {
+            print("Closed Connection");
             ws = null;
         }
-        ws.onmessage = function(evt) {
-			if (evt.data.startsWith('{') && evt.data.endsWith('}')){
+        ws.onmessage = function (evt) {
+            if (evt.data.startsWith('{') && evt.data.endsWith('}')) {
                 var feedback = JSON.parse(evt.data);
                 print(evt.data)
-                if (feedback.action == "loaded"){
+                if (feedback.action == "loaded") {
                     spinner.style.display = 'none';
                 }
-                if (feedback.action == "loading"){
+                if (feedback.action == "loading") {
                     spinner.style.display = 'block';
                 }
                 if (feedback.action == "selected") {
-                    if (feedback.value == "") { 
+                    if (feedback.value == "") {
                         selection_ui.innerHTML = "No selection"
                     } else {
                         selection_ui.innerHTML = `Selected Node <span class="badge badge-secondary">${feedback.value}</span>`;
                     }
                 }
-			}else{
-				var ctx = document.getElementById('canvas').getContext('2d');
-				var img = new Image(w,h);
-				img.onload = function() {ctx.drawImage(img, 0,0,w, h);};
-                img.src = 'data:image/jpeg;base64,'+evt.data;
-			}
+            } else {
+                var ctx = document.getElementById('canvas').getContext('2d');
+                var img = new Image(w, h);
+                img.onload = function () {
+                    ctx.drawImage(img, 0, 0, w, h);
+                };
+                img.src = 'data:image/jpeg;base64,' + evt.data;
+            }
         }
-        ws.onerror = function(evt) {
+        ws.onerror = function (evt) {
             print("Error: " + evt.data);
         }
         return false;
     };
 
-	canvas.onmousemove = function(evt){
-			if (!ws) {return false;}
-            mouse_moved = true;
-			var rect = evt.target.getBoundingClientRect();
-			var x = (evt.clientX - rect.left); 
-			var y = (evt.clientY - rect.top); 
-			ws.send(`{"x":${x},"y":${y}, "cmd":""}`);
-			return false;	
-	}
-
-	canvas.onwheel = function(evt){
-		evt.preventDefault();
-			if (!ws) {return false;}
-			ws.send(`{"x":${evt.deltaX},"y":${evt.deltaY}, "cmd":"zoom"}`);
-			return false;	
-	}
-
-	canvas.oncontextmenu = function(evt){
-		evt.preventDefault();
+    canvas.onmousemove = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        mouse_moved = true;
+        var rect = evt.target.getBoundingClientRect();
+        var x = (evt.clientX - rect.left);
+        var y = (evt.clientY - rect.top);
+        ws.send(`{"x":${x},"y":${y}, "cmd":""}`);
         return false;
     }
 
-	canvas.onmousedown = function(evt){
-		if (!ws) {return false;}
+    canvas.onwheel = function (evt) {
+        evt.preventDefault();
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"x":${evt.deltaX},"y":${evt.deltaY}, "cmd":"zoom"}`);
+        return false;
+    }
+
+    canvas.oncontextmenu = function (evt) {
+        evt.preventDefault();
+        return false;
+    }
+
+    canvas.onmousedown = function (evt) {
+        if (!ws) {
+            return false;
+        }
         evt.preventDefault();
 
-		var rect = evt.target.getBoundingClientRect();
-		var x = (evt.clientX - rect.left); 
-        var y = (evt.clientY - rect.top); 
-        checkMouseMoved(x,y);
+        var rect = evt.target.getBoundingClientRect();
+        var x = (evt.clientX - rect.left);
+        var y = (evt.clientY - rect.top);
+        checkMouseMoved(x, y);
         ws.send(`{"x":${x},"y":${y}, "cmd":"mousedown", "val":"${evt.button}", "moved":${mouse_moved}}`);
         prev_x = x;
         prev_y = y;
-		return false;	
-	}
+        return false;
+    }
 
-    function checkMouseMoved(x,y){
+    function checkMouseMoved(x, y) {
         if (prev_x && prev_y) {
             if (Math.abs(prev_x - x) < 1 && Math.abs(prev_y - y) < 1) {
                 mouse_moved = false;
-            }else {
+            } else {
                 mouse_moved = true;
             }
         }
     }
 
-    canvas.onmouseup = function(evt){
-		evt.preventDefault();
-		if (!ws) {return false;}
-		var rect = evt.target.getBoundingClientRect();
-		var x = (evt.clientX - rect.left); 
-        var y = (evt.clientY - rect.top); 
-        checkMouseMoved(x,y);
+    canvas.onmouseup = function (evt) {
+        evt.preventDefault();
+        if (!ws) {
+            return false;
+        }
+        var rect = evt.target.getBoundingClientRect();
+        var x = (evt.clientX - rect.left);
+        var y = (evt.clientY - rect.top);
+        checkMouseMoved(x, y);
         ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}, "ctrl":${evt.ctrlKey}}`);
 
         // open context menu if mouse hasn't been moved
         if (evt.button == 2 && !mouse_moved) {
-              var top = evt.clientY;
-              var left = evt.clientX;
-              $("#context-menu").css({
+            var top = evt.clientY;
+            var left = evt.clientX;
+            $("#context-menu").css({
                 display: "block",
                 top: top,
                 left: left
-              }).addClass("show");
+            }).addClass("show");
         }
-		return false;	
-	}
+        return false;
+    }
 
-    this.document.onkeydown = function(e) {
+    this.document.onkeydown = function (e) {
         e.preventDefault();
         e = e || window.event;
-        if (!ws) {return false;}
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"keydown", "val":"${e.keyCode}"}`);
-        return false;   
+        return false;
     }
 
-    this.document.onkeyup = function(e) {
+    this.document.onkeyup = function (e) {
         e.preventDefault();
         e = e || window.event;
-        if (!ws) {return false;}
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"keyup", "val":"${e.keyCode}"}`);
-        return false;   
+        return false;
     }
 
-    document.getElementById("cmd_parallel").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_parallel").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"fov", "val":"5"}`);
         return false;
     };
 
-    document.getElementById("cmd_perspective").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_perspective").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"fov", "val":"65"}`);
         return false;
     };
 
-    document.getElementById("cmd_zoomextent").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_zoomextent").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"zoomextent"}`);
         return false;
     };
 
-    document.getElementById("cmd_focus").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_focus").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"focus"}`);
         return false;
     };
 
-    document.getElementById("cmd_viewtop").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_viewtop").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"view", "val":"top"}`);
         return false;
     };
 
-    document.getElementById("cmd_viewbottom").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_viewbottom").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"view", "val":"bottom"}`);
         return false;
     };
 
-    document.getElementById("cmd_viewleft").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_viewleft").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"view", "val":"left"}`);
         return false;
     };
 
-    document.getElementById("cmd_viewright").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_viewright").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"view", "val":"right"}`);
         return false;
     };
 
-    document.getElementById("cmd_viewrear").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_viewrear").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"view", "val":"rear"}`);
         return false;
     };
 
-    document.getElementById("cmd_viewfront").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_viewfront").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"view", "val":"front"}`);
         return false;
     };
 
-    document.getElementById("cmd_unhideall").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_unhideall").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"unhide", "val":""}`);
         return false;
     };
 
-    document.getElementById("cmd_hide").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_hide").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"hide"}`);
         return false;
     };
 
-    document.getElementById("cmd_qlow").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_qlow").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"quality", "val":"20"}`);
         return false;
     };
 
-    document.getElementById("cmd_qmid").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_qmid").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"quality", "val":"60"}`);
         return false;
     };
 
-    document.getElementById("cmd_qhigh").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_qhigh").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         ws.send(`{"cmd":"quality", "val":"90"}`);
         return false;
     };
 
-    document.getElementById("cmd_imagesettings").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_imagesettings").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         let contrast = document.getElementById("img_contrast").value
         let saturation = document.getElementById("img_saturation").value
         let brightness = document.getElementById("img_brightness").value
@@ -246,8 +307,10 @@ window.addEventListener("load", function(evt) {
         return false;
     };
 
-    document.getElementById("cmd_resetimagesettings").onclick = function(evt) {
-        if (!ws) {return false;}
+    document.getElementById("cmd_resetimagesettings").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
         document.getElementById("img_contrast").value = 0
         document.getElementById("img_saturation").value = 0
         document.getElementById("img_brightness").value = 0
@@ -257,25 +320,29 @@ window.addEventListener("load", function(evt) {
         return false;
     };
 
-    document.getElementById("cmd_imageinvert").onclick = function(evt) {
-        if (!ws) {return false;}
-		ws.send(`{"cmd":"invert"}`);
+    document.getElementById("cmd_imageinvert").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"cmd":"invert"}`);
         return false;
     };
 
-    document.getElementById("close").onclick = function(evt) {
-        if (!ws) {return false;}
-		ws.send(`{"cmd":"close"}`);
+    document.getElementById("close").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"cmd":"close"}`);
         ws.close();
         return false;
     };
-    
 
-      $("#context-menu").on("click", function() {
+
+    $("#context-menu").on("click", function () {
         $("#context-menu").removeClass("show").hide();
-      });
-      
-      $("#context-menu a").on("click", function() {
+    });
+
+    $("#context-menu a").on("click", function () {
         $(this).parent().removeClass("show").hide();
-      });
+    });
 });

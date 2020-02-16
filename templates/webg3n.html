@@ -8,6 +8,7 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="static/bootstrap.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="static/style.css">
+    <script src="static/jquery.js" crossorigin="anonymous"></script>
     <script src="static/webg3n.js" host="ws://{{.}}/webg3n"></script>
 </head>
 
@@ -89,7 +90,7 @@
 <main role="main" class="flex-shrink-0">
  
   <div class="container">
-    <canvas id="canvas" width="900" height="700"></canvas>
+    <canvas id="canvas"></canvas>
   </div>
 </main>
             <div class="dropdown-menu dropdown-menu-sm" id="context-menu">
@@ -102,7 +103,6 @@
     <span class="text-muted" id="selection">No selection</span>
   </div>
 </footer>
-    <script src="static/jquery.js" crossorigin="anonymous"></script>
     <script src="static/popper.min.js" crossorigin="anonymous"></script>
     <script src="static/bootstrap.min.js" crossorigin="anonymous"></script>
   </body>

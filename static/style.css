@@ -16,8 +16,9 @@ main > .container {
     width: 100%;
   }
   .container {
-    position: relative;
+    position: absolute;
     width: 100%;
+    height: 100%;
   }  
   .footer > .container {
     padding-right: 15px;
@@ -27,4 +28,5 @@ main > .container {
   code {
     font-size: 80%;
   }
+
   
