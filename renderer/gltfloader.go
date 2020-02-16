@@ -9,20 +9,20 @@ import (
 )
 
 // nameChildren names all gltf nodes by path
-func (a *RenderingApp) nameChildren(p string, n core.INode) {
+func (app *RenderingApp) nameChildren(p string, n core.INode) {
 	node := n.GetNode()
 	node.SetName(p)
-	a.nodeBuffer[p] = node
+	app.nodeBuffer[p] = node
 	for _, child := range node.Children() {
 		idx := node.ChildIndex(child)
 		title := p + "/" + strconv.Itoa(idx)
-		a.nameChildren(title, child)
+		app.nameChildren(title, child)
 	}
 }
 
 // loadScene loads a gltf file
-func (a *RenderingApp) loadScene(fpath string) error {
-	a.sendMessageToClient("loading", fpath)
+func (app *RenderingApp) loadScene(fpath string) error {
+	app.sendMessageToClient("loading", fpath)
 	// Checks file extension
 	ext := filepath.Ext(fpath)
 	var g *gltf.GLTF
@@ -52,9 +52,9 @@ func (a *RenderingApp) loadScene(fpath string) error {
 		return err
 	}
 
-	a.Scene().Add(n)
-	root := a.Scene().ChildIndex(n)
-	a.nameChildren("/"+strconv.Itoa(root), n)
-	a.sendMessageToClient("loaded", fpath)
+	app.Scene().Add(n)
+	root := app.Scene().ChildIndex(n)
+	app.nameChildren("/"+strconv.Itoa(root), n)
+	app.sendMessageToClient("loaded", fpath)
 	return nil
 }

@@ -9,13 +9,13 @@ type Message struct {
 }
 
 // sendMessageToClient sends a message to the client
-func (a *RenderingApp) sendMessageToClient(action string, value string) {
+func (app *RenderingApp) sendMessageToClient(action string, value string) {
 	m := &Message{Action: action, Value: value}
 	msgJSON, err := json.Marshal(m)
 	if err != nil {
-		a.Log().Error(err.Error())
+		app.Application.Log().Error(err.Error())
 		return
 	}
-	a.Log().Info("sending message: " + string(msgJSON))
-	a.cImagestream <- []byte(string(msgJSON))
+	app.Log().Info("sending message: " + string(msgJSON))
+	app.cImagestream <- []byte(string(msgJSON))
 }

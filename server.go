@@ -20,6 +20,7 @@ const (
 	maxMessageSize = 512
 )
 
+// Client holding g3napp, socket and channels
 type Client struct {
 	app renderer.RenderingApp
 
@@ -115,10 +116,10 @@ func serveWebsocket(c *gin.Context) {
 	conn.EnableWriteCompression(true)
 
 	// create two channels for read write concurrency
-	c_write := make(chan []byte)
-	c_read := make(chan []byte)
+	cWrite := make(chan []byte)
+	cRead := make(chan []byte)
 
-	client := &Client{conn: conn, write: c_write, read: c_read}
+	client := &Client{conn: conn, write: cWrite, read: cRead}
 
 	// get scene width and height from url query params
 	// default to 800 if they are not set
@@ -136,7 +137,7 @@ func serveWebsocket(c *gin.Context) {
 	}
 
 	// run 3d application in separate go routine
-	go renderer.LoadRenderingApp(&client.app, sessionId.String(), height, width, c_write, c_read, modelPath+model)
+	go renderer.LoadRenderingApp(&client.app, sessionId.String(), height, width, cWrite, cRead, modelPath+model)
 
 	// run reader and writer in two different go routines
 	// so they can act concurrently

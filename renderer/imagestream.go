@@ -11,8 +11,8 @@ import (
 )
 
 // onRender event handler for onRender event
-func (a *RenderingApp) onRender(evname string, ev interface{}) {
-	a.makeScreenShot()
+func (app *RenderingApp) onRender(evname string, ev interface{}) {
+	app.makeScreenShot()
 }
 
 var md5SumBuffer [16]byte
