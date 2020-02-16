@@ -8,13 +8,16 @@ import (
 	"github.com/llgcode/draw2d/draw2dimg"
 )
 
+// byte buffer holding sent bytes
 var byteBuffer []int
 
+// AddToByteBuffer adding sent bytes to the history stack
 func AddToByteBuffer(value int) {
 	byteBuffer = byteBuffer[1:]
 	byteBuffer = append(byteBuffer, value)
 }
 
+// convertToRGBA converts NRGBA to RGBA
 func convertToRGBA(src *image.NRGBA) *image.RGBA {
 	b := src.Bounds()
 	img := image.NewRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
@@ -22,6 +25,7 @@ func convertToRGBA(src *image.NRGBA) *image.RGBA {
 	return img
 }
 
+// convertToNRGBA converts RGBA to NRGBA
 func convertToNRGBA(src *image.RGBA) *image.NRGBA {
 	b := src.Bounds()
 	img := image.NewNRGBA(image.Rect(0, 0, b.Dx(), b.Dy()))
@@ -29,9 +33,10 @@ func convertToNRGBA(src *image.RGBA) *image.NRGBA {
 	return img
 }
 
+// DrawByteGraph draws the histroy of sent bytes onto the image
 func DrawByteGraph(src *image.NRGBA) *image.NRGBA {
 	if byteBuffer == nil {
-		byteBuffer = make([]int, 30)
+		byteBuffer = make([]int, 50)
 	}
 	img := convertToRGBA(src)
 	gc := draw2dimg.NewGraphicContext(img)
@@ -46,6 +51,7 @@ func DrawByteGraph(src *image.NRGBA) *image.NRGBA {
 	gc.Close()
 	gc.Stroke()
 
+	// draw sent bytes as bars in kb
 	for _, value := range byteBuffer {
 		gc.BeginPath()
 		gc.MoveTo(x, y)
