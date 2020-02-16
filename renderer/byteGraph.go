@@ -42,7 +42,8 @@ func DrawByteGraph(src *image.NRGBA) *image.NRGBA {
 	gc := draw2dimg.NewGraphicContext(img)
 	x := float64(len(byteBuffer)) * 3.0
 	y := float64(img.Bounds().Dy())
-	gc.SetStrokeColor(color.Black)
+	gc.SetStrokeColor(color.RGBA{R: 255, G: 0, B: 0, A: 255})
+	gc.SetLineWidth(0.5)
 
 	// draw 100 kb line
 	gc.BeginPath()
@@ -51,6 +52,8 @@ func DrawByteGraph(src *image.NRGBA) *image.NRGBA {
 	gc.Close()
 	gc.Stroke()
 
+	gc.SetStrokeColor(color.Black)
+	gc.SetLineWidth(0.5)
 	// draw sent bytes as bars in kb
 	for _, value := range byteBuffer {
 		gc.BeginPath()
