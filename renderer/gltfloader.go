@@ -1,9 +1,9 @@
 package renderer
 
 import (
+	"fmt"
 	"github.com/g3n/engine/core"
 	"github.com/g3n/engine/loader/gltf"
-	"fmt"
 	"path/filepath"
 	"strconv"
 )
