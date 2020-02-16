@@ -1,14 +1,8 @@
-package byteGraph
+package renderer
 
 import (
 	"testing"
 )
-
-func assert(t *testing.T, actual interface{}, expected interface{}) {
-	if actual != expected {
-		t.Error("Actual:", actual, "Expected:", expected)
-	}
-}
 
 func TestSlice(t *testing.T) {
 	byteBuffer = []int{1, 2, 3, 4, 5, 6}

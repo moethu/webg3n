@@ -4,10 +4,9 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/base64"
+	"github.com/disintegration/imaging"
 	"image"
 	"image/jpeg"
-
-	"github.com/disintegration/imaging"
 )
 
 // onRender event handler for onRender event

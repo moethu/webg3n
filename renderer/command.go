@@ -166,6 +166,12 @@ func (app *RenderingApp) commandLoop() {
 			if err == nil {
 				app.CameraPersp().SetFov(float32(getValueInRange(fov, 5, 120)))
 			}
+		case "debug":
+			if app.Debug {
+				app.Debug = false
+			} else {
+				app.Debug = true
+			}
 		case "close":
 			app.Log().Info("close")
 			app.Window().SetShouldClose(true)

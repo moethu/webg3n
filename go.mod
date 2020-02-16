@@ -11,4 +11,6 @@ require (
 
 replace github.com/moethu/webg3n/renderer => ./renderer
 
+replace github.com/moethu/webg3n/byteGraph => ./byteGraph
+
 replace github.com/g3n/engine => github.com/moethu/engine v0.0.0-20190918211458-57b17b524856

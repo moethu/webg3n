@@ -1,4 +1,4 @@
-package byteGraph
+package renderer
 
 import (
 	"image"

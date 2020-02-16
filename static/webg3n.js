@@ -270,6 +270,14 @@ window.addEventListener("load", function (evt) {
         return false;
     };
 
+    document.getElementById("cmd_debug").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"cmd":"debug"}`);
+        return false;
+    };
+
     document.getElementById("cmd_qlow").onclick = function (evt) {
         if (!ws) {
             return false;
