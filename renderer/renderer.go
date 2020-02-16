@@ -135,7 +135,7 @@ func (app *RenderingApp) setupScene() {
 		log.Fatal(er)
 	}
 
-	amb := light.NewAmbient(&math32.Color{0.2, 0.2, 0.2}, 1.0)
+	amb := light.NewAmbient(&math32.Color{R: 0.2, G: 0.2, B: 0.2}, 1.0)
 	app.Scene().Add(amb)
 
 	plight := light.NewPoint(math32.NewColor("white"), 40)
