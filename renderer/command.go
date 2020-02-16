@@ -79,7 +79,8 @@ func (app *RenderingApp) commandLoop() {
 
 			app.Orbit().OnMouse(&mev)
 		case "zoom":
-			mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y}
+			scrollFactor := float32(10.0)
+			mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y / scrollFactor}
 			app.Orbit().OnScroll(&mev)
 		case "mouseup":
 			mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
