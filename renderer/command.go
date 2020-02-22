@@ -3,6 +3,7 @@ package renderer
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -50,10 +51,16 @@ func mapKey(value string) window.Key {
 	}
 }
 
+func (app *RenderingApp) Testme(a int) {
+	b := a + 2
+	log.Println(b)
+}
+
 // commandLoop listens for incoming commands and forwards them to the rendering app
 func (app *RenderingApp) commandLoop() {
 	t := reflect.TypeOf(app)
 	v := reflect.ValueOf(app)
+	k := reflect.TypeOf(Command{}).Kind()
 	for {
 		message := <-app.cCommands
 
@@ -75,8 +82,14 @@ func (app *RenderingApp) commandLoop() {
 		// call it with two args: the app itself and the command payload
 		m, found := t.MethodByName(cmd.Cmd)
 		if found {
-			args := []reflect.Value{v, reflect.ValueOf(cmd)}
-			m.Func.Call(args)
+			// make sure we got the right func with Command argument
+			// otherwise Func.Call will panic
+			if m.Type.NumIn() == 2 {
+				if m.Type.In(1).Kind() == k {
+					args := []reflect.Value{v, reflect.ValueOf(cmd)}
+					m.Func.Call(args)
+				}
+			}
 		} else {
 			app.Log().Info("Unknown Command: " + cmd.Cmd)
 		}
