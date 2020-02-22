@@ -226,7 +226,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"Testme", "val":"left"}`);
+        ws.send(`{"cmd":"View", "val":"left"}`);
         return false;
     };
 

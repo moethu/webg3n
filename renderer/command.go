@@ -3,7 +3,6 @@ package renderer
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -49,11 +48,6 @@ func mapKey(value string) window.Key {
 	default:
 		return window.KeyEnter
 	}
-}
-
-func (app *RenderingApp) Testme(a int) {
-	b := a + 2
-	log.Println(b)
 }
 
 // commandLoop listens for incoming commands and forwards them to the rendering app
