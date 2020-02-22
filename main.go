@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"github.com/g3n/engine/window"
 	"log"
 	"net/http"
 	"os"
@@ -11,6 +10,8 @@ import (
 	"syscall"
 	"text/template"
 	"time"
+
+	"github.com/g3n/engine/window"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"

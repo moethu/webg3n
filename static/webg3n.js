@@ -95,7 +95,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"x":${evt.deltaX},"y":${evt.deltaY}, "cmd":"zoom"}`);
+        ws.send(`{"x":${evt.deltaX},"y":${evt.deltaY}, "cmd":"Zoom"}`);
         return false;
     }
 
@@ -114,7 +114,7 @@ window.addEventListener("load", function (evt) {
         var x = (evt.clientX - rect.left);
         var y = (evt.clientY - rect.top);
         checkMouseMoved(x, y);
-        ws.send(`{"x":${x},"y":${y}, "cmd":"mousedown", "val":"${evt.button}", "moved":${mouse_moved}}`);
+        ws.send(`{"x":${x},"y":${y}, "cmd":"Mousedown", "val":"${evt.button}", "moved":${mouse_moved}}`);
         prev_x = x;
         prev_y = y;
         return false;
@@ -139,7 +139,7 @@ window.addEventListener("load", function (evt) {
         var x = (evt.clientX - rect.left);
         var y = (evt.clientY - rect.top);
         checkMouseMoved(x, y);
-        ws.send(`{"x":${x},"y":${y}, "cmd":"mouseup", "val":"${evt.button}", "moved":${mouse_moved}, "ctrl":${evt.ctrlKey}}`);
+        ws.send(`{"x":${x},"y":${y}, "cmd":"Mouseup", "val":"${evt.button}", "moved":${mouse_moved}, "ctrl":${evt.ctrlKey}}`);
 
         // open context menu if mouse hasn't been moved
         if (evt.button == 2 && !mouse_moved) {
@@ -160,7 +160,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"keydown", "val":"${e.keyCode}"}`);
+        ws.send(`{"cmd":"Keydown", "val":"${e.keyCode}"}`);
         return false;
     }
 
@@ -170,7 +170,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"keyup", "val":"${e.keyCode}"}`);
+        ws.send(`{"cmd":"Keyup", "val":"${e.keyCode}"}`);
         return false;
     }
 
@@ -178,7 +178,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"fov", "val":"5"}`);
+        ws.send(`{"cmd":"Fov", "val":"5"}`);
         return false;
     };
 
@@ -186,7 +186,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"fov", "val":"65"}`);
+        ws.send(`{"cmd":"Fov", "val":"65"}`);
         return false;
     };
 
@@ -194,7 +194,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"zoomextent"}`);
+        ws.send(`{"cmd":"Zoomextent"}`);
         return false;
     };
 
@@ -202,7 +202,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"focus"}`);
+        ws.send(`{"cmd":"Focus"}`);
         return false;
     };
 
@@ -210,7 +210,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"view", "val":"top"}`);
+        ws.send(`{"cmd":"View", "val":"top"}`);
         return false;
     };
 
@@ -218,7 +218,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"view", "val":"bottom"}`);
+        ws.send(`{"cmd":"View", "val":"bottom"}`);
         return false;
     };
 
@@ -226,7 +226,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"view", "val":"left"}`);
+        ws.send(`{"cmd":"View", "val":"left"}`);
         return false;
     };
 
@@ -234,7 +234,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"view", "val":"right"}`);
+        ws.send(`{"cmd":"View", "val":"right"}`);
         return false;
     };
 
@@ -242,7 +242,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"view", "val":"rear"}`);
+        ws.send(`{"cmd":"View", "val":"rear"}`);
         return false;
     };
 
@@ -250,7 +250,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"view", "val":"front"}`);
+        ws.send(`{"cmd":"View", "val":"front"}`);
         return false;
     };
 
@@ -258,7 +258,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"unhide", "val":""}`);
+        ws.send(`{"cmd":"Unhide", "val":""}`);
         return false;
     };
 
@@ -266,7 +266,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"hide"}`);
+        ws.send(`{"cmd":"Hide"}`);
         return false;
     };
 
@@ -274,7 +274,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"debug"}`);
+        ws.send(`{"cmd":"Debugmode"}`);
         return false;
     };
 
@@ -282,7 +282,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"quality", "val":"2"}`);
+        ws.send(`{"cmd":"Quality", "val":"2"}`);
         return false;
     };
 
@@ -290,7 +290,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"quality", "val":"1"}`);
+        ws.send(`{"cmd":"Quality", "val":"1"}`);
         return false;
     };
 
@@ -298,7 +298,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"quality", "val":"0"}`);
+        ws.send(`{"cmd":"Quality", "val":"0"}`);
         return false;
     };
 
@@ -311,7 +311,7 @@ window.addEventListener("load", function (evt) {
         let brightness = document.getElementById("img_brightness").value
         let blur = document.getElementById("img_blur").value
         let pixel = document.getElementById("img_pixel").value
-        ws.send(`{"cmd":"imagesettings", "val":"${brightness}:${contrast}:${saturation}:${blur}:${pixel}"}`);
+        ws.send(`{"cmd":"Imagesettings", "val":"${brightness}:${contrast}:${saturation}:${blur}:${pixel}"}`);
         return false;
     };
 
@@ -324,7 +324,7 @@ window.addEventListener("load", function (evt) {
         document.getElementById("img_brightness").value = 0
         document.getElementById("img_blur").value = 0
         document.getElementById("img_pixel").value = 1.0
-        ws.send(`{"cmd":"imagesettings", "val":"0:0:0:0:1"}`);
+        ws.send(`{"cmd":"Imagesettings", "val":"0:0:0:0:1"}`);
         return false;
     };
 
@@ -332,7 +332,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"invert"}`);
+        ws.send(`{"cmd":"Invert"}`);
         return false;
     };
 
@@ -340,7 +340,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"close"}`);
+        ws.send(`{"cmd":"Close"}`);
         ws.close();
         return false;
     };
