@@ -178,7 +178,7 @@ window.addEventListener("load", function (evt) {
         if (!ws) {
             return false;
         }
-        ws.send(`{"cmd":"Fov", "val":"5"}`);
+        ws.send(`{"cmd":"Fov", "val":"15"}`);
         return false;
     };
 
