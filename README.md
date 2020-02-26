@@ -7,6 +7,8 @@ webg3n is a 3D web-viewer running [G3N](https://github.com/g3n/engine) as a serv
 
 ![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot03.png)
 
+[Checkout this demo video](https://vimeo.com/358812535)
+
 ## How it works
 
 ![alt text](https://github.com/moethu/g3nserverside/raw/master/images/arc.png)
@@ -23,15 +25,49 @@ Client and server side renderers have both pros and cons. Depending on your use 
 
 On the other hand it shifts the bottleneck from the client's rendering capabilites to the bandwith.
 
-## Requirements
+## Dependencies
 
-Requires this modified [G3N engine](https://github.com/moethu/engine) and its [dependencies](https://github.com/moethu/engine#dependencies)
+Go 1.8+ is required. The engine also requires the system to have an OpenGL driver and a GCC-compatible C compiler.
+
+Requires this modified [G3N engine](https://github.com/moethu/engine) which gets installed via go modules. 
+
+On Unix-based systems the engine depends on some C libraries that can be installed using the appropriate distribution package manager. See below for OS specific requirements.
+
+#### Ubuntu/Debian-like
+
+```
+$ sudo apt-get install xorg-dev libgl1-mesa-dev libopenal1 libopenal-dev libvorbis0a libvorbis-dev libvorbisfile3
+```
+
+#### Fedora
+
+```
+$ sudo dnf -y install xorg-x11-proto-devel mesa-libGL mesa-libGL-devel openal-soft openal-soft-devel libvorbis libvorbis-devel glfw-devel libXi-devel
+```
+
+#### CentOS 7
+
+Enable the EPEL repository:
+```
+$ sudo yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+```
+Then install the same packages as for Fedora - remember to use yum instead of dnf for the package installation command.
+
+#### Windows
+
+The necessary audio libraries sources and DLLs are supplied but they need to be installed manually. Please see Audio libraries for Windows for details. We tested the Windows build using the mingw-w64 toolchain (you can download this file in particular).
+
+#### macOS
+
+Install the development files of OpenAL and Vorbis using Homebrew:
+```
+brew install libvorbis openal-soft
+```
 
 ## Example
 
 This implementation comes with a simple webUI, simply go run it and connect to port 8000.
 Once you click connect, a g3n window will appear which is the server side rendering screen.
-[Demo video](https://vimeo.com/358812535)
 
 ## Features
 
