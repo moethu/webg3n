@@ -5,7 +5,7 @@ webg3n is a 3D web-viewer running [G3N](https://github.com/g3n/engine) as a serv
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/moethu/webg3n)](https://goreportcard.com/report/github.com/moethu/webg3n)
 
-![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot03.png)
+![alt text](https://github.com/moethu/g3nserverside/raw/master/images/screenshot01.png)
 
 [Checkout this demo video](https://vimeo.com/358812535)
 
