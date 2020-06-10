@@ -31,8 +31,6 @@ Go 1.8+ is required. The engine also requires the system to have an OpenGL drive
 
 Requires this modified [G3N engine](https://github.com/moethu/engine) which gets installed via go modules.
 
-In order to support off-screen rendering, please apply the `offscreen.patch` file to the engine.
-
 On Unix-based systems the engine depends on some C libraries that can be installed using the appropriate distribution package manager. See below for OS specific requirements.
 
 #### Ubuntu/Debian-like
