@@ -63,6 +63,11 @@ Install the development files of OpenAL and Vorbis using Homebrew:
 ```
 brew install libvorbis openal-soft
 ```
+Important Note: OpenGL has been deprecated on MacOS.
+If you are experiencing issues building webg3n please read the following issue:
+https://github.com/moethu/webg3n/issues/18
+You might be able to acitvate it using this hint:
+https://www.alora.io/forums/topic/28972-how-to-get-hd-opengl-working-on-mac-osx-high-sierra-mojave/
 
 ## Example
 
