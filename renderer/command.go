@@ -34,6 +34,19 @@ func mapMouseButton(value string) window.MouseButton {
 	}
 }
 
+func mapActionToMouseButton(value string) window.MouseButton {
+	switch value {
+	case "Rotate":
+		return window.MouseButtonLeft
+	case "Zoom":
+		return window.MouseButtonMiddle
+	case "Pan":
+		return window.MouseButtonRight
+	default:
+		return window.MouseButton1
+	}
+}
+
 // mapKey maps js keys to window keys
 func mapKey(value string) window.Key {
 	switch value {
@@ -90,6 +103,55 @@ func (app *RenderingApp) commandLoop() {
 	}
 }
 
+func (app *RenderingApp) SetOrbitAction(cmd Command) {
+	action := mapActionToMouseButton(cmd.Val)
+
+	if action != window.MouseButton1 {
+		mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
+			Action: window.Press,
+			Button: mapMouseButton(cmd.Val)}
+		if cmd.Moved {
+			app.imageSettings.isNavigating = true
+		}
+
+		app.Orbit().OnMouse(&mev)
+	}
+}
+
+//Zoom in/out scene
+func (app *RenderingApp) Zoom(cmd Command) {
+	scrollFactor := float32(10.0)
+	mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y / scrollFactor}
+	app.Orbit().OnScroll(&mev)
+}
+
+//Pan scene
+func (app *RenderingApp) Pan(cmd Command) {
+	mev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
+	app.Orbit().OnCursorPos(&mev)
+}
+
+//Rotate scene
+func (app *RenderingApp) Rotate(cmd Command) {
+	mev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
+	app.Orbit().OnCursorPos(&mev)
+}
+
+//Clear all Orbit Actions scene
+func (app *RenderingApp) ClearOrbitAction(cmd Command) {
+	mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
+		Action: window.Release,
+		Button: nil}
+
+	app.imageSettings.isNavigating = false
+	app.Orbit().OnMouse(&mev)
+}
+
+// Mouseup event
+func (app *RenderingApp) SelectEntity(cmd Command) {
+		app.selectNode(cmd.X, cmd.Y, cmd.Ctrl)
+}
+
 // Navigate orbit navigation
 func (app *RenderingApp) Navigate(cmd Command) {
 	cev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
@@ -107,12 +169,12 @@ func (app *RenderingApp) Mousedown(cmd Command) {
 	app.Orbit().OnMouse(&mev)
 }
 
-// Zoom in/out scene
-func (app *RenderingApp) Zoom(cmd Command) {
-	scrollFactor := float32(10.0)
-	mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y / scrollFactor}
-	app.Orbit().OnScroll(&mev)
-}
+//// Zoom in/out scene
+//func (app *RenderingApp) Zoom(cmd Command) {
+//	scrollFactor := float32(10.0)
+//	mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y / scrollFactor}
+//	app.Orbit().OnScroll(&mev)
+//}
 
 // Mouseup event
 func (app *RenderingApp) Mouseup(cmd Command) {

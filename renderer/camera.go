@@ -90,3 +90,5 @@ func (app *RenderingApp) zoomToExtent() {
 	pos := app.Camera().GetCamera().Position()
 	app.focusCameraToCenter(pos)
 }
+
+

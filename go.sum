@@ -68,6 +68,8 @@ github.com/moethu/engine v0.0.0-20200610122637-682e1e061a29 h1:vDWIUH1PtMkm3/LtP
 github.com/moethu/engine v0.0.0-20200610122637-682e1e061a29/go.mod h1:HPMic40GK6e/NtGfD6lTmw4JrRT3txuYd8hwfU/VAr0=
 github.com/moethu/webg3n v0.0.0-20190914122806-b732bd71f80d h1:K2WCAgfNttr1hh4XXUFJ2pgdGPfdEZL18N03/I2UUmo=
 github.com/moethu/webg3n v0.0.0-20190914122806-b732bd71f80d/go.mod h1:6oSN6BL/kmld+Eqnuwg9y2BNCLgS07BGhbkuAYWry70=
+github.com/moethu/webg3n v0.0.0-20201010132405-ce0d591c0e62 h1:ortNzLW/XoZ7LZ1lUEDHBzpObUJzjvwce0L9NLUE50k=
+github.com/moethu/webg3n v0.0.0-20201010132405-ce0d591c0e62/go.mod h1:Dxa3VpnzrlQMIteW3ZOLLYuWm+yH13q2pL9NlZemINg=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/satori/go.uuid v1.2.0 h1:0uYX9dsZ2yD7q2RtLRtPSdGDWzjeM3TbMJP9utgA0ww=
