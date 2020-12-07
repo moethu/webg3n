@@ -113,7 +113,6 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 	app.cImagestream = write
 	app.cCommands = read
 	app.modelpath = modelpath
-	app.Renderer().SetGui()
 	app.setupScene()
 	go app.commandLoop()
 	err = app.Run()
