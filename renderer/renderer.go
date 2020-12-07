@@ -1,9 +1,8 @@
 package renderer
 
 import (
-	"log"
-
 	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/geometry"
 	"github.com/g3n/engine/graphic"
 	"github.com/g3n/engine/light"
 
@@ -114,6 +113,7 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 	app.cImagestream = write
 	app.cCommands = read
 	app.modelpath = modelpath
+	app.Renderer().SetGui()
 	app.setupScene()
 	go app.commandLoop()
 	err = app.Run()
@@ -130,14 +130,23 @@ func (app *RenderingApp) setupScene() {
 	app.selectionBuffer = make(map[core.INode][]graphic.GraphicMaterial)
 	app.nodeBuffer = make(map[string]*core.Node)
 
-	app.Gl().ClearColor(1.0, 1.0, 1.0, 1.0)
+	app.Gl().ClearColor(0.2, 0.2, 0.2, 1.0)
 
-	er := app.loadScene(app.modelpath)
-	if er != nil {
-		log.Fatal(er)
-	}
+	// er := app.loadScene(app.modelpath)
+	// if er != nil {
+	// 	log.Fatal(er)
+	// }
 
-	amb := light.NewAmbient(&math32.Color{R: 0.2, G: 0.2, B: 0.2}, 1.0)
+	torus := geometry.NewBox(25.0, 25.0, 25.0)
+	mat := material.NewStandard(math32.NewColor("firebrick"))
+	mesh := graphic.NewMesh(torus, mat)
+	app.Scene().Add(mesh)
+
+	axes := graphic.NewAxisHelper(50.0)
+	app.Scene().Add(axes)
+
+	//amb := light.NewAmbient(&math32.Color{R: 0.2, G: 0.2, B: 0.2}, 1.0)
+	amb := light.NewAmbient(math32.NewColor("white"), 1.0)
 	app.Scene().Add(amb)
 
 	plight := light.NewPoint(math32.NewColor("white"), 40)
@@ -146,12 +155,41 @@ func (app *RenderingApp) setupScene() {
 	plight.SetQuadraticDecay(.001)
 	app.Scene().Add(plight)
 
+	p := math32.Vector3{X: 0, Y: 0, Z: 0}
+
+	dirLight := light.NewDirectional(math32.NewColor("white"), 1.0)
+	dirLight.SetDirectionVec(&p)
+	app.Scene().Add(dirLight)
+
 	app.Camera().GetCamera().SetPosition(12, 1, 5)
 
-	p := math32.Vector3{X: 0, Y: 0, Z: 0}
-	app.Camera().GetCamera().LookAt(&p)
-	app.CameraPersp().SetFov(50)
+	//app.Camera().GetCamera().LookAt(&p)
+	//pp.CameraPersp().SetFov(60)
 	app.zoomToExtent()
 	app.Orbit().Enabled = true
 	app.Application.Subscribe(application.OnAfterRender, app.onRender)
 }
+
+// func (app *RenderingApp) initialCameraPosition(desiredFOV float32) {
+
+// 	sceneBBox := app.Scene().BoundingBox()
+// 	center := sceneBBox.Center(nil)
+
+// 	distance := center.DistanceTo(&sceneBBox.Max)
+// 	desiredFOVRadian := desiredFOV * (math32.Pi/180)
+// 	radianAngle := distance / math32.Sin(desiredFOVRadian/2)
+
+// }
+
+// func (app *RenderingApp) threePointLighting() {
+
+// 	sceneBBox := app.Scene().BoundingBox()
+// 	center := sceneBBox.Center(nil)
+// 	distance := center.DistanceTo(&sceneBBox.Max)
+// 	a := app.CameraPersp().Fov()
+// 	radianAngle := distance / math32.Sin(a/2)
+
+// 	keyLight := light.NewSpot(math32.NewColor("white"), 1.0)
+// 	keyLight.SetPositionVec()
+
+// }

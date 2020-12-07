@@ -17,10 +17,11 @@ require (
 	gopkg.in/go-playground/validator.v8 v8.18.2 // indirect
 )
 
-replace github.com/moethu/webg3n/renderer => ./renderer
+//replace github.com/moethu/webg3n/renderer => ./renderer
 
-replace github.com/moethu/webg3n/byteGraph => ./byteGraph
+//replace github.com/moethu/webg3n/byteGraph => ./byteGraph
 
-replace github.com/g3n/engine => github.com/moethu/engine v0.0.0-20200610122637-682e1e061a29
+//replace github.com/g3n/engine => github.com/moethu/engine v0.0.0-20200610122637-682e1e061a29
+replace github.com/g3n/engine => E:\Development\Shashi-Git\webg3n-engine
 
 go 1.13

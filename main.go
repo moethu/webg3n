@@ -30,9 +30,9 @@ func main() {
 		WriteTimeout: 600 * time.Second,
 	}
 
-	router.Static("/static/", "./static/")
+	//router.Static("/static/", "./static/")
 	router.Any("/webg3n", serveWebsocket)
-	router.GET("/", home)
+	//router.GET("/", home)
 	log.Println("Starting HTTP Server on Port 8000")
 
 	go func() {
@@ -61,7 +61,9 @@ func main() {
 	log.Println("Server exiting")
 }
 
-var upgrader = websocket.Upgrader{}
+var upgrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool {
+	return true
+}}
 
 // Home route, loading template and serving it
 func home(c *gin.Context) {

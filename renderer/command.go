@@ -43,7 +43,7 @@ func mapActionToMouseButton(value string) window.MouseButton {
 	case "Pan":
 		return window.MouseButtonRight
 	default:
-		return window.MouseButton1
+		return window.MouseButton6
 	}
 }
 
@@ -103,17 +103,20 @@ func (app *RenderingApp) commandLoop() {
 	}
 }
 
-func (app *RenderingApp) SetOrbitAction(cmd Command) {
+// Setorbitaction sets
+//func (app *RenderingApp) Mousedown(cmd Command) {
+func (app *RenderingApp) Setorbitaction(cmd Command) {
 	action := mapActionToMouseButton(cmd.Val)
 
-	if action != window.MouseButton1 {
+	if action != window.MouseButton6 {
 		mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
 			Action: window.Press,
-			Button: mapMouseButton(cmd.Val)}
+			Button: action}
 		if cmd.Moved {
 			app.imageSettings.isNavigating = true
 		}
-
+		app.Log().Info("Setting Orbit Action: " + cmd.Val)
+		app.Log().Info("Mouse button number: %d", mev.Button)
 		app.Orbit().OnMouse(&mev)
 	}
 }
@@ -122,52 +125,63 @@ func (app *RenderingApp) SetOrbitAction(cmd Command) {
 func (app *RenderingApp) Zoom(cmd Command) {
 	scrollFactor := float32(10.0)
 	mev := window.ScrollEvent{Xoffset: cmd.X, Yoffset: -cmd.Y / scrollFactor}
+	fmt.Printf("Zooming")
 	app.Orbit().OnScroll(&mev)
 }
 
 //Pan scene
 func (app *RenderingApp) Pan(cmd Command) {
 	mev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
+	fmt.Printf("Panning")
 	app.Orbit().OnCursorPos(&mev)
 }
 
 //Rotate scene
+//func (app *RenderingApp) Navigate(cmd Command) {
 func (app *RenderingApp) Rotate(cmd Command) {
 	mev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
+	app.Log().Info("Rotating")
 	app.Orbit().OnCursorPos(&mev)
 }
 
-//Clear all Orbit Actions scene
+//ClearOrbitAction for any action
 func (app *RenderingApp) ClearOrbitAction(cmd Command) {
 	mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
 		Action: window.Release,
-		Button: nil}
+		Button: window.MouseButton1}
 
 	app.imageSettings.isNavigating = false
+
+	fmt.Printf("Clear Orbit Action")
 	app.Orbit().OnMouse(&mev)
 }
 
-// Mouseup event
-func (app *RenderingApp) SelectEntity(cmd Command) {
-		app.selectNode(cmd.X, cmd.Y, cmd.Ctrl)
+//ResizeWindow for any action
+func (app *RenderingApp) ResizeWindow(cmd Command) {
+	app.Window().SetSize(int(cmd.X), int(cmd.Y))
 }
 
-// Navigate orbit navigation
-func (app *RenderingApp) Navigate(cmd Command) {
-	cev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
-	app.Orbit().OnCursorPos(&cev)
+// SelectEntity (a node)
+func (app *RenderingApp) SelectEntity(cmd Command) {
+	app.selectNode(cmd.X, cmd.Y, cmd.Ctrl)
 }
+
+// // Navigate orbit navigation
+// func (app *RenderingApp) Navigate(cmd Command) {
+// 	cev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
+// 	app.Orbit().OnCursorPos(&cev)
+// }
 
 // Mousedown triggers a mousedown event
-func (app *RenderingApp) Mousedown(cmd Command) {
-	mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
-		Action: window.Press,
-		Button: mapMouseButton(cmd.Val)}
-	if cmd.Moved {
-		app.imageSettings.isNavigating = true
-	}
-	app.Orbit().OnMouse(&mev)
-}
+// func (app *RenderingApp) Mousedown(cmd Command) {
+// 	mev := window.MouseEvent{Xpos: cmd.X, Ypos: cmd.Y,
+// 		Action: window.Press,
+// 		Button: mapMouseButton(cmd.Val)}
+// 	if cmd.Moved {
+// 		app.imageSettings.isNavigating = true
+// 	}
+// 	app.Orbit().OnMouse(&mev)
+// }
 
 //// Zoom in/out scene
 //func (app *RenderingApp) Zoom(cmd Command) {

@@ -1,8 +1,9 @@
 package renderer
 
 import (
-	"github.com/g3n/engine/math32"
 	"log"
+
+	"github.com/g3n/engine/math32"
 )
 
 // getCenter gets the centerpoint of a 3D box
@@ -72,16 +73,17 @@ func (app *RenderingApp) setCamera(view string) {
 
 // focusCameraToCenter sets the camera focus to the center of the entire model
 func (app *RenderingApp) focusCameraToCenter(position math32.Vector3) {
-	bbox := app.Scene().ChildAt(0).BoundingBox()
+	//bbox := app.Scene().ChildAt(0).BoundingBox()
+	bbox := app.Scene().BoundingBox()
 	C := bbox.Center(nil)
 	r := C.DistanceTo(&bbox.Max)
-	a := app.CameraPersp().Fov()
+	a := app.CameraPersp().Fov() * 0.6
 	d := r / math32.Sin(a/2)
 	P := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
 	dir := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
 	P.Add(((position.Sub(C)).Normalize().MultiplyScalar(d)))
 	dir.Sub(&P)
-	app.Camera().GetCamera().SetPositionVec(&P)
+	app.Camera().GetCamera().SetPositionVec(&dir)
 	app.Camera().GetCamera().LookAt(C)
 }
 
@@ -90,5 +92,3 @@ func (app *RenderingApp) zoomToExtent() {
 	pos := app.Camera().GetCamera().Position()
 	app.focusCameraToCenter(pos)
 }
-
-
