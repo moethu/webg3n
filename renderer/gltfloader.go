@@ -2,17 +2,20 @@ package renderer
 
 import (
 	"fmt"
-	"github.com/g3n/engine/core"
-	"github.com/g3n/engine/loader/gltf"
 	"path/filepath"
 	"strconv"
+	"strings"
+
+	"github.com/g3n/engine/core"
+	"github.com/g3n/engine/graphic"
+	"github.com/g3n/engine/loader/gltf"
 )
 
 // nameChildren names all gltf nodes by path
 func (app *RenderingApp) nameChildren(p string, n core.INode) {
 	node := n.GetNode()
 	node.SetName(p)
-	app.nodeBuffer[p] = node
+	//app.nodeBuffer[p] = node
 	for _, child := range node.Children() {
 		idx := node.ChildIndex(child)
 		title := p + "/" + strconv.Itoa(idx)
@@ -20,9 +23,9 @@ func (app *RenderingApp) nameChildren(p string, n core.INode) {
 	}
 }
 
-// loadScene loads a gltf file
-func (app *RenderingApp) loadScene(fpath string) error {
-	app.sendMessageToClient("loading", fpath)
+// LoadScene loads a gltf file
+func (app *RenderingApp) LoadScene(fpath string) (*gltf.GLTF, error) {
+	app.SendMessageToClient("loading", fpath)
 	// Checks file extension
 	ext := filepath.Ext(fpath)
 	var g *gltf.GLTF
@@ -34,11 +37,11 @@ func (app *RenderingApp) loadScene(fpath string) error {
 	} else if ext == ".glb" {
 		g, err = gltf.ParseBin(fpath)
 	} else {
-		return fmt.Errorf("unrecognized file extension:%s", ext)
+		return nil, fmt.Errorf("unrecognized file extension:%s", ext)
 	}
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	defaultSceneIdx := 0
@@ -49,12 +52,43 @@ func (app *RenderingApp) loadScene(fpath string) error {
 	// Create default scene
 	n, err := g.LoadScene(defaultSceneIdx)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	app.Scene().Add(n)
-	root := app.Scene().ChildIndex(n)
-	app.nameChildren("/"+strconv.Itoa(root), n)
-	app.sendMessageToClient("loaded", fpath)
+	//meshList := make([]*graphic.Mesh, 10)
+
+	mesh := returnFirstMesh(n)
+
+	if mesh != nil {
+		slc := strings.Split(fpath, ".")
+		ok := app.LoadMeshEntity(mesh, slc[0])
+
+		if ok {
+			app.zoomToExtent()
+			app.SendMessageToClient("loaded", fpath)
+		}
+
+	}
+
+	//n.GetNode().SetName(fpath)
+	//n.GetNode().GetNode().SetName(fpath)
+	//app.Scene().Add(n)
+	//root := app.Scene().ChildIndex(n)
+	//app.nameChildren("/"+strconv.Itoa(root), n)
+
+	return g, nil
+}
+
+func returnFirstMesh(node core.INode) *graphic.Mesh {
+	mesh, ok := node.(*graphic.Mesh)
+
+	if ok {
+		return mesh
+	}
+
+	for _, ci := range node.GetNode().Children() {
+		return returnFirstMesh(ci)
+
+	}
 	return nil
 }

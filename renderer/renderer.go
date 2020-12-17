@@ -12,6 +12,9 @@ import (
 	"github.com/g3n/engine/util/logger"
 )
 
+//AppSingleton used to the http calls
+var AppSingleton *RenderingApp
+
 // ImageSettings for rendering image
 type ImageSettings struct {
 	saturation   float64
@@ -75,18 +78,21 @@ type RenderingApp struct {
 	selectionBuffer   map[core.INode][]graphic.GraphicMaterial
 	selectionMaterial material.IMaterial
 	modelpath         string
-	nodeBuffer        map[string]*core.Node
+	entityList        map[string]*core.Node
+	graphicList       map[*core.Node]*graphic.Mesh
 	Debug             bool
+
+	//nodeBuffer        map[string]*core.Node
 }
 
 // LoadRenderingApp loads the rendering application
-func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
+func LoadRenderingApp(app *RenderingApp, sessionID string, h int, w int, write chan []byte, read chan []byte, modelpath string) {
 	a, err := application.Create(application.Options{
 		Title:       "g3nServerApplication",
 		Width:       w,
 		Height:      h,
 		Fullscreen:  false,
-		LogPrefix:   sessionId,
+		LogPrefix:   sessionID,
 		LogLevel:    logger.DEBUG,
 		TargetFPS:   30,
 		EnableFlags: true,
@@ -113,6 +119,7 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 	app.cImagestream = write
 	app.cCommands = read
 	app.modelpath = modelpath
+	AppSingleton = app
 	app.setupScene()
 	go app.commandLoop()
 	err = app.Run()
@@ -125,26 +132,17 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 
 // setupScene sets up the current scene
 func (app *RenderingApp) setupScene() {
-	app.selectionMaterial = material.NewPhong(math32.NewColor("Red"))
+	app.selectionMaterial = material.NewPhong(math32.NewColor("gold"))
 	app.selectionBuffer = make(map[core.INode][]graphic.GraphicMaterial)
-	app.nodeBuffer = make(map[string]*core.Node)
+	//app.nodeBuffer = make(map[string]*core.Node)
+	app.entityList = make(map[string]*core.Node)
+	app.graphicList = make(map[*core.Node]*graphic.Mesh)
 
 	app.Gl().ClearColor(0.2, 0.2, 0.2, 1.0)
-
-	// er := app.loadScene(app.modelpath)
-	// if er != nil {
-	// 	log.Fatal(er)
-	// }
-
-	torus := geometry.NewBox(25.0, 25.0, 25.0)
-	mat := material.NewStandard(math32.NewColor("firebrick"))
-	mesh := graphic.NewMesh(torus, mat)
-	app.Scene().Add(mesh)
 
 	axes := graphic.NewAxisHelper(50.0)
 	app.Scene().Add(axes)
 
-	//amb := light.NewAmbient(&math32.Color{R: 0.2, G: 0.2, B: 0.2}, 1.0)
 	amb := light.NewAmbient(math32.NewColor("white"), 1.0)
 	app.Scene().Add(amb)
 
@@ -162,33 +160,70 @@ func (app *RenderingApp) setupScene() {
 
 	app.Camera().GetCamera().SetPosition(12, 1, 5)
 
-	//app.Camera().GetCamera().LookAt(&p)
-	//pp.CameraPersp().SetFov(60)
+	app.Camera().GetCamera().LookAt(&p)
+	app.CameraPersp().SetFov(60)
+
+	app.loadDefaultBlueBox()
+	app.loadDefaultRedBox()
+
 	app.zoomToExtent()
 	app.Orbit().Enabled = true
 	app.Application.Subscribe(application.OnAfterRender, app.onRender)
 }
 
-// func (app *RenderingApp) initialCameraPosition(desiredFOV float32) {
+func (app *RenderingApp) loadDefaultBlueBox() {
+	name := "BlueBox"
+	box := geometry.NewBox(25.0, 25.0, 25.0)
+	boxmat := material.NewStandard(math32.NewColor("blue"))
+	boxmesh := graphic.NewMesh(box, boxmat)
 
-// 	sceneBBox := app.Scene().BoundingBox()
-// 	center := sceneBBox.Center(nil)
+	app.LoadMeshEntity(boxmesh, name)
+}
 
-// 	distance := center.DistanceTo(&sceneBBox.Max)
-// 	desiredFOVRadian := desiredFOV * (math32.Pi/180)
-// 	radianAngle := distance / math32.Sin(desiredFOVRadian/2)
+func (app *RenderingApp) loadDefaultRedBox() {
+	name := "RedBox"
+	box := geometry.NewPositionedBox(25.0, 25.0, 25.0, 50.0, 50.0, 50.0)
+	mat := material.NewStandard(math32.NewColor("firebrick"))
+	mesh := graphic.NewMesh(box, mat)
+
+	app.LoadMeshEntity(mesh, name)
+}
+
+//LoadMeshEntity will load the Mesh entity properly to the scene with the Buffer updated, checks name as well
+func (app *RenderingApp) LoadMeshEntity(mesh *graphic.Mesh, name string) bool {
+
+	_, exist := app.entityList[name]
+
+	if exist {
+		app.SendMessageToClient("LoadModel", "Entity with same name already exist")
+		return false
+	}
+
+	mesh.SetName(name)
+	app.Scene().Add(mesh)
+
+	for _, node := range app.Scene().Children() {
+		ptr := node.GetNode()
+
+		if ptr.Name() == name {
+			app.entityList[name] = ptr
+			app.graphicList[ptr] = mesh
+		}
+	}
+
+	return true
+}
+
+// func returnGraphic(inode core.INode) (*graphic.IGraphic, bool) {
+// 	gnode, ok := inode.(graphic.IGraphic)
+
+// 	if ok {
+// 		return &gnode, ok
+// 	}
 
 // }
 
-// func (app *RenderingApp) threePointLighting() {
-
-// 	sceneBBox := app.Scene().BoundingBox()
-// 	center := sceneBBox.Center(nil)
-// 	distance := center.DistanceTo(&sceneBBox.Max)
-// 	a := app.CameraPersp().Fov()
-// 	radianAngle := distance / math32.Sin(a/2)
-
-// 	keyLight := light.NewSpot(math32.NewColor("white"), 1.0)
-// 	keyLight.SetPositionVec()
-
-// }
+//GetEntityList returns map
+func (app *RenderingApp) GetEntityList() map[string]*core.Node {
+	return app.entityList
+}

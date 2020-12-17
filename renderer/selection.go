@@ -23,15 +23,33 @@ func (app *RenderingApp) selectNode(mx float32, my float32, multiselect bool) {
 	if len(i) != 0 {
 		object = i[0].Object.GetNode()
 		app.Log().Info("selected: %s", object.Name())
-		app.sendMessageToClient("selected", object.Name())
+		app.SendMessageToClient("selected", object.Name())
 		if !multiselect {
 			app.resetSelection()
 		}
 		app.changeNodeMaterial(i[0].Object)
 	} else {
 		if !multiselect {
-			app.sendMessageToClient("selected", "")
 			app.resetSelection()
+		}
+	}
+}
+
+// selectNodeFromName uses name to match the node
+// It sends the selection as json to the image channel
+// and changes the node's material
+func (app *RenderingApp) selectNodeFromName(name string, multiselect bool) {
+	node, ok := app.entityList[name]
+
+	if ok {
+		gf, ok2 := app.graphicList[node]
+
+		if ok2 {
+			if !multiselect {
+				app.resetSelection()
+			}
+			app.SendMessageToClient("selected", node.Name())
+			app.changeNodeMaterial(gf)
 		}
 	}
 }
@@ -47,6 +65,7 @@ func (app *RenderingApp) resetSelection() {
 		}
 		delete(app.selectionBuffer, inode)
 	}
+	app.SendMessageToClient("selected", "")
 }
 
 // changeNodeMaterial changes a node's material to selected

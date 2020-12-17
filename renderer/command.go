@@ -137,7 +137,6 @@ func (app *RenderingApp) Pan(cmd Command) {
 }
 
 //Rotate scene
-//func (app *RenderingApp) Navigate(cmd Command) {
 func (app *RenderingApp) Rotate(cmd Command) {
 	mev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
 	app.Log().Info("Rotating")
@@ -161,16 +160,42 @@ func (app *RenderingApp) ResizeWindow(cmd Command) {
 	app.Window().SetSize(int(cmd.X), int(cmd.Y))
 }
 
-// SelectEntity (a node)
-func (app *RenderingApp) SelectEntity(cmd Command) {
+// SelectEntityCoordinates (a node)
+func (app *RenderingApp) SelectEntityCoordinates(cmd Command) {
 	app.selectNode(cmd.X, cmd.Y, cmd.Ctrl)
 }
 
-// // Navigate orbit navigation
-// func (app *RenderingApp) Navigate(cmd Command) {
-// 	cev := window.CursorEvent{Xpos: cmd.X, Ypos: cmd.Y}
-// 	app.Orbit().OnCursorPos(&cev)
-// }
+// SelectEntityFromName (a node)
+func (app *RenderingApp) SelectEntityFromName(cmd Command) {
+	app.selectNodeFromName(cmd.Val, cmd.Ctrl)
+}
+
+// ClearSelection (a node)
+func (app *RenderingApp) ClearSelection(cmd Command) {
+	app.resetSelection()
+}
+
+// HideEntityFromName (a node)
+func (app *RenderingApp) HideEntityFromName(cmd Command) {
+	node, ok := app.entityList[cmd.Val]
+
+	if ok {
+		node.SetVisible(false)
+	}
+
+	app.SendMessageToClient("Hide", node.Name())
+}
+
+// UnhideEntityFromName (a node)
+func (app *RenderingApp) UnhideEntityFromName(cmd Command) {
+	node, ok := app.entityList[cmd.Val]
+
+	if ok {
+		node.SetVisible(true)
+	}
+
+	app.SendMessageToClient("Show", node.Name())
+}
 
 // Mousedown triggers a mousedown event
 // func (app *RenderingApp) Mousedown(cmd Command) {
@@ -205,27 +230,27 @@ func (app *RenderingApp) Mouseup(cmd Command) {
 	}
 }
 
-// Hide selected element
-func (app *RenderingApp) Hide(cmd Command) {
-	for inode := range app.selectionBuffer {
-		inode.GetNode().SetVisible(false)
-	}
-	app.resetSelection()
-}
+// // Hide selected element
+// func (app *RenderingApp) Hide(cmd Command) {
+// 	for inode := range app.selectionBuffer {
+// 		inode.GetNode().SetVisible(false)
+// 	}
+// 	app.resetSelection()
+// }
 
-// Unhide all hidden elements
-func (app *RenderingApp) Unhide(cmd Command) {
-	for _, node := range app.nodeBuffer {
-		node.SetVisible(true)
-	}
-}
+// // Unhide all hidden elements
+// func (app *RenderingApp) Unhide(cmd Command) {
+// 	for _, node := range app.nodeBuffer {
+// 		node.SetVisible(true)
+// 	}
+// }
 
-// Send element userdata to client
-func (app *RenderingApp) Userdata(cmd Command) {
-	if node, ok := app.nodeBuffer[cmd.Val]; ok {
-		app.sendMessageToClient("userdata", fmt.Sprintf("%v", node.UserData()))
-	}
-}
+// // Send element userdata to client
+// func (app *RenderingApp) Userdata(cmd Command) {
+// 	if node, ok := app.nodeBuffer[cmd.Val]; ok {
+// 		app.SendMessageToClient("userdata", fmt.Sprintf("%v", node.UserData()))
+// 	}
+// }
 
 // Keydown event
 func (app *RenderingApp) Keydown(cmd Command) {
@@ -245,7 +270,7 @@ func (app *RenderingApp) View(cmd Command) {
 }
 
 // Zoomextent entire model
-func (app *RenderingApp) Zoomextent(cmd Command) {
+func (app *RenderingApp) ZoomExtent(cmd Command) {
 	app.zoomToExtent()
 }
 

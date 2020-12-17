@@ -13,6 +13,7 @@ import (
 
 	"github.com/g3n/engine/window"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
@@ -22,6 +23,19 @@ func main() {
 	log.SetFlags(0)
 
 	router := gin.Default()
+
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"*"},
+		AllowMethods:     []string{"PUT", "GET"},
+		AllowHeaders:     []string{"Origin"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		// AllowOriginFunc: func(origin string) bool {
+		// 	return origin == "https://github.com"
+		// },
+		MaxAge: 12 * time.Hour,
+	}))
+
 	port := ":8000"
 	srv := &http.Server{
 		Addr:         port,
@@ -32,6 +46,8 @@ func main() {
 
 	//router.Static("/static/", "./static/")
 	router.Any("/webg3n", serveWebsocket)
+	router.PUT("/loadModel", loadModel)
+	router.GET("/objects", getObjects)
 	//router.GET("/", home)
 	log.Println("Starting HTTP Server on Port 8000")
 

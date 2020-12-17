@@ -1,6 +1,7 @@
 package main
 
 import (
+	"io"
 	"log"
 	"os"
 	"strconv"
@@ -107,6 +108,7 @@ func (c *Client) streamWriter() {
 
 // serveWebsocket handles websocket requests from the peer.
 func serveWebsocket(c *gin.Context) {
+
 	sessionId := uuid.NewV4()
 	// upgrade connection to websocket
 	conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
@@ -144,6 +146,70 @@ func serveWebsocket(c *gin.Context) {
 	// so they can act concurrently
 	go client.streamReader()
 	go client.streamWriter()
+}
+
+// loadModel loads GLTF model
+func loadModel(c *gin.Context) {
+
+	if renderer.AppSingleton == nil {
+		c.JSON(400, "")
+		return
+	}
+	renderer.AppSingleton.SendMessageToClient("Load Model", "Called")
+
+	file, fileheader, err := c.Request.FormFile("file")
+
+	defer file.Close()
+	if err != nil {
+		return
+	}
+
+	out, err := os.Create(fileheader.Filename)
+	if err != nil {
+		c.JSON(401, "")
+		return
+	}
+	defer out.Close()
+	_, err = io.Copy(out, file)
+	if err != nil {
+		return
+	}
+
+	renderer.AppSingleton.LoadScene(fileheader.Filename)
+
+	os.Remove(out.Name())
+	return
+}
+
+// getObjects returns the list of mesh entity in the rendering scene
+func getObjects(c *gin.Context) {
+
+	if renderer.AppSingleton == nil {
+		c.JSON(400, "")
+		return
+	}
+	renderer.AppSingleton.SendMessageToClient("Object List", "Called")
+
+	//objects := (renderer.AppSingleton.Scene().Children())
+
+	collection := new(renderer.EntityCollection)
+
+	entityList := renderer.AppSingleton.GetEntityList()
+	index := 1
+	for key, node := range entityList {
+		entity := new(renderer.Entity)
+
+		entity.Name = key
+		entity.Visible = node.Visible()
+		entity.ID = index
+
+		collection.Collection = append(collection.Collection, *entity)
+
+		index++
+	}
+
+	c.JSON(200, collection)
+	return
 }
 
 // getParameterDefault gets a parameter and returns default value if its not set

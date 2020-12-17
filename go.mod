@@ -6,6 +6,7 @@ require (
 	github.com/disintegration/imaging v1.6.2
 	github.com/g3n/engine v0.1.0
 	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-contrib/cors v1.3.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/llgcode/draw2d v0.0.0-20200603164053-19660b984a28
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect

@@ -71,12 +71,12 @@ func (app *RenderingApp) setCamera(view string) {
 	app.focusCameraToCenter(*pos)
 }
 
-// focusCameraToCenter sets the camera focus to the center of the entire model
+// focusCameraToCenter sets the camera focus to the center of the entire scene
 func (app *RenderingApp) focusCameraToCenter(position math32.Vector3) {
 	//bbox := app.Scene().ChildAt(0).BoundingBox()
-	bbox := app.Scene().BoundingBox()
-	C := bbox.Center(nil)
-	r := C.DistanceTo(&bbox.Max)
+	scenebbox := app.Scene().BoundingBox()
+	C := scenebbox.Center(nil)
+	r := C.DistanceTo(&scenebbox.Max)
 	a := app.CameraPersp().Fov() * 0.6
 	d := r / math32.Sin(a/2)
 	P := math32.Vector3{X: C.X, Y: C.Y, Z: C.Z}
@@ -90,5 +90,10 @@ func (app *RenderingApp) focusCameraToCenter(position math32.Vector3) {
 // zoomToExtent zooms the view to extent
 func (app *RenderingApp) zoomToExtent() {
 	pos := app.Camera().GetCamera().Position()
+
+	// scenebbox := app.Scene().BoundingBox()
+
+	// camerabbox := app.Camera().GetCamera().BoundingBox()
+	// containsCamera := scenebbox.ContainsBox(&camerabbox)
 	app.focusCameraToCenter(pos)
 }
