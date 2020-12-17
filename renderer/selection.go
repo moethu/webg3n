@@ -22,11 +22,12 @@ func (app *RenderingApp) selectNode(mx float32, my float32, multiselect bool) {
 	var object *core.Node
 	if len(i) != 0 {
 		object = i[0].Object.GetNode()
-		app.Log().Info("selected: %s", object.Name())
-		app.SendMessageToClient("selected", object.Name())
+		//app.Log().Info("selected: %s", object.Name())
+		// always clear selection if nothing should be selected
 		if !multiselect {
 			app.resetSelection()
 		}
+		app.SendMessageToClient("selected", object.Name())
 		app.changeNodeMaterial(i[0].Object)
 	} else {
 		if !multiselect {
