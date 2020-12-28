@@ -34,11 +34,10 @@ func convertToNRGBA(src *image.RGBA) *image.NRGBA {
 }
 
 // DrawByteGraph draws the histroy of sent bytes onto the image
-func DrawByteGraph(src *image.NRGBA) *image.NRGBA {
+func DrawByteGraph(img *image.RGBA) *image.RGBA {
 	if byteBuffer == nil {
 		byteBuffer = make([]int, 50)
 	}
-	img := convertToRGBA(src)
 	gc := draw2dimg.NewGraphicContext(img)
 	x := float64(len(byteBuffer)) * 3.0
 	y := float64(img.Bounds().Dy())
@@ -63,5 +62,5 @@ func DrawByteGraph(src *image.NRGBA) *image.NRGBA {
 		gc.Stroke()
 		x = x - 3.0
 	}
-	return convertToNRGBA(img)
+	return img
 }
