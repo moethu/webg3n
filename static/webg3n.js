@@ -302,14 +302,6 @@ window.addEventListener("load", function (evt) {
         return false;
     };
 
-    document.getElementById("cmd_encodegif").onclick = function (evt) {
-        if (!ws) {
-            return false;
-        }
-        ws.send(`{"cmd":"Encoder", "val":"gif"}`);
-        return false;
-    };
-
     document.getElementById("cmd_encodejpeg").onclick = function (evt) {
         if (!ws) {
             return false;
