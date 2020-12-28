@@ -5,14 +5,11 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"image"
-	"image/color/palette"
-	"image/gif"
 	"image/jpeg"
 	"image/png"
 
 	"github.com/moethu/imaging"
 	libjpeg "github.com/pixiv/go-libjpeg/jpeg"
-	"golang.org/x/image/draw"
 )
 
 // onRender event handler for onRender event
@@ -58,20 +55,16 @@ func (app *RenderingApp) makeScreenShot() {
 	buf := new(bytes.Buffer)
 	var err interface{}
 	switch app.imageSettings.encoder {
-	case "gif":
-		pm := image.NewPaletted(img.Bounds(), palette.WebSafe)
-		draw.Draw(pm, img.Bounds(), img, image.ZP, draw.Over)
-		err = gif.Encode(buf, img, nil)
 	case "png":
 		err = png.Encode(buf, img)
-	case "libjpeg":
-		var opt libjpeg.EncoderOptions
-		opt.Quality = app.imageSettings.getJpegQuality()
-		err = libjpeg.Encode(buf, img, &opt)
-	default:
+	case "jpeg":
 		var opt jpeg.Options
 		opt.Quality = app.imageSettings.getJpegQuality()
 		err = jpeg.Encode(buf, img, &opt)
+	default:
+		var opt libjpeg.EncoderOptions
+		opt.Quality = app.imageSettings.getJpegQuality()
+		err = libjpeg.Encode(buf, img, &opt)
 	}
 
 	if err != nil {
