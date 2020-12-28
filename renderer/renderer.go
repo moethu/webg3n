@@ -110,7 +110,7 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 		pixelation: 1.0,
 		invert:     false,
 		quality:    highQ,
-		encoder:    "jpeg",
+		encoder:    "libjpeg",
 	}
 
 	app.cImagestream = write
