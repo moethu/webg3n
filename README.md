@@ -27,11 +27,11 @@ On the other hand it shifts the bottleneck from the client's rendering capabilit
 
 ## Dependencies and Installation
 
-#### Docker
+### Docker
 
 The easies way to run webg3n is to `build` and `run` a container using the supplied Dockerfile.
 
-#### Not using Docker?
+### Not using Docker?
 
 Go 1.8+ is required. The engine also requires the system to have an OpenGL driver and a GCC-compatible C compiler.
 
@@ -42,13 +42,13 @@ On Unix-based systems the engine depends on some C libraries that can be install
 #### Ubuntu/Debian-like
 
 ```
-$ sudo apt-get install xorg-dev libgl1-mesa-dev libopenal1 libopenal-dev libvorbis0a libvorbis-dev libvorbisfile3
+$ sudo apt-get install xorg-dev libgl1-mesa-dev libopenal1 libopenal-dev libvorbis0a libvorbis-dev libvorbisfile3 libjpeg-turbo8 libjpeg-turbo8-dev
 ```
 
 #### Fedora
 
 ```
-$ sudo dnf -y install xorg-x11-proto-devel mesa-libGL mesa-libGL-devel openal-soft openal-soft-devel libvorbis libvorbis-devel glfw-devel libXi-devel
+$ sudo dnf -y install xorg-x11-proto-devel mesa-libGL mesa-libGL-devel openal-soft openal-soft-devel libvorbis libvorbis-devel glfw-devel libXi-devel libjpeg-turbo8 libjpeg-turbo8-devel
 ```
 
 #### CentOS 7
