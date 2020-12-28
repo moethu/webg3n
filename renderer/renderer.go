@@ -23,6 +23,7 @@ type ImageSettings struct {
 	invert       bool
 	quality      Quality
 	isNavigating bool
+	encoder      string
 }
 
 // getJpegQuality returns quality depending on navigation movement
@@ -109,6 +110,7 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 		pixelation: 1.0,
 		invert:     false,
 		quality:    highQ,
+		encoder:    "jpeg",
 	}
 
 	app.cImagestream = write
