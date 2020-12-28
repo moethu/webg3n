@@ -11,6 +11,7 @@ ENV TZ=Europe/Vienna
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN apt-get install -y xorg-dev libgl1-mesa-dev libopenal1 libopenal-dev libvorbis0a libvorbis-dev libvorbisfile3
 RUN apt-get install libjpeg-turbo8 libjpeg-turbo8-dev
+RUN apt-get install -y xvfb
 
 RUN apt-get install -y golang-1.14-go
 RUN apt-get install -y ca-certificates
@@ -34,7 +35,9 @@ WORKDIR /go/bin
 
 RUN cp -r /go/src/app/templates /go/bin
 RUN cp -r /go/src/app/static /go/bin
+RUN cp -r /go/src/app/models /go/bin
 
 EXPOSE 8000
 
-ENTRYPOINT /go/bin/web-app
+ENTRYPOINT ["/bin/sh", "-c", "/usr/bin/xvfb-run -s \"-screen 0 1920x1080x24\" -a $@", ""]
+CMD ["/go/bin/web-app"]

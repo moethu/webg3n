@@ -25,7 +25,13 @@ Client and server side renderers have both pros and cons. Depending on your use 
 
 On the other hand it shifts the bottleneck from the client's rendering capabilites to the bandwith.
 
-## Dependencies
+## Dependencies and Installation
+
+#### Docker
+
+The easies way to run webg3n is to `build` and `run` a container using the supplied Dockerfile.
+
+#### Not using Docker?
 
 Go 1.8+ is required. The engine also requires the system to have an OpenGL driver and a GCC-compatible C compiler.
 
@@ -63,6 +69,11 @@ Install the development files of OpenAL and Vorbis using Homebrew:
 ```
 brew install libvorbis openal-soft
 ```
+Important Note: OpenGL has been deprecated on MacOS.
+If you are experiencing issues building webg3n please read the following issue:
+https://github.com/moethu/webg3n/issues/18
+You might be able to acitvate it using this hint:
+https://www.alora.io/forums/topic/28972-how-to-get-hd-opengl-working-on-mac-osx-high-sierra-mojave/
 
 ## Example
 
