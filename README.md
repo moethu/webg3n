@@ -25,7 +25,13 @@ Client and server side renderers have both pros and cons. Depending on your use 
 
 On the other hand it shifts the bottleneck from the client's rendering capabilites to the bandwith.
 
-## Dependencies
+## Dependencies and Installation
+
+#### Docker
+
+The easies way to run webg3n is to `build` and `run` a container using the supplied Dockerfile.
+
+#### Not using Docker?
 
 Go 1.8+ is required. The engine also requires the system to have an OpenGL driver and a GCC-compatible C compiler.
 
