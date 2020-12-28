@@ -294,6 +294,38 @@ window.addEventListener("load", function (evt) {
         return false;
     };
 
+    document.getElementById("cmd_encodepng").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"cmd":"Encoder", "val":"png"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_encodegif").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"cmd":"Encoder", "val":"gif"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_encodejpeg").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"cmd":"Encoder", "val":"jpeg"}`);
+        return false;
+    };
+
+    document.getElementById("cmd_encodelibjpeg").onclick = function (evt) {
+        if (!ws) {
+            return false;
+        }
+        ws.send(`{"cmd":"Encoder", "val":"libjpeg"}`);
+        return false;
+    };
+
     document.getElementById("cmd_qhigh").onclick = function (evt) {
         if (!ws) {
             return false;

@@ -1,110 +1,129 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">-->
-    <meta name="viewport" content="user-scalable=no, user-scalable=0, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="static/bootstrap.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="static/style.css">
-    <script src="static/jquery.js" crossorigin="anonymous"></script>
-    <script src="static/webg3n.js" host="ws://{{.}}/webg3n"></script>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">-->
+  <meta name="viewport"
+    content="user-scalable=no, user-scalable=0, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="static/bootstrap.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="static/style.css">
+  <script src="static/jquery.js" crossorigin="anonymous"></script>
+  <script src="static/webg3n.js" host="ws://{{.}}/webg3n"></script>
 </head>
 
 
- <body>
-    <div class="header">
-      <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="#"><h2>webg3n</h2></a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+<body>
+  <div class="header">
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="#">
+        <h2>webg3n</h2>
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-    <div class="collapse navbar-collapse" id="navbarCollapse">
-      <ul class="navbar-nav mr-auto">
-        <li class="nav-item">
-          <button type="button" id="open" class="btn btn-primary">Connect to Server</button>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" id="cmd_perspective"  href="#">Perspective</a>
-        </li><li class="nav-item">
-          <a class="nav-link" id="cmd_parallel"  href="#">Parallel</a>
-        </li>
-        <div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    View
-  </button>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-    <button class="dropdown-item" id="cmd_viewtop" type="button">Top</button>
-    <button class="dropdown-item" id="cmd_viewleft" type="button">Left</button>
-    <button class="dropdown-item" id="cmd_viewright" type="button">Right</button>
-    <button class="dropdown-item" id="cmd_viewbottom" type="button">Bottom</button>
-    <button class="dropdown-item" id="cmd_viewfront" type="button">Front</button>
-    <button class="dropdown-item" id="cmd_viewrear" type="button">Rear</button>
+      <div class="collapse navbar-collapse" id="navbarCollapse">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <button type="button" id="open" class="btn btn-primary">Connect to Server</button>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="cmd_perspective" href="#">Perspective</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" id="cmd_parallel" href="#">Parallel</a>
+          </li>
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              View
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+              <button class="dropdown-item" id="cmd_viewtop" type="button">Top</button>
+              <button class="dropdown-item" id="cmd_viewleft" type="button">Left</button>
+              <button class="dropdown-item" id="cmd_viewright" type="button">Right</button>
+              <button class="dropdown-item" id="cmd_viewbottom" type="button">Bottom</button>
+              <button class="dropdown-item" id="cmd_viewfront" type="button">Front</button>
+              <button class="dropdown-item" id="cmd_viewrear" type="button">Rear</button>
+            </div>
+          </div>
+          <li class="nav-item">
+            <a class="nav-link" id="cmd_zoomextent" href="#">Zoom Extents</a>
+          </li>
+
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              Quality
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+              <button class="dropdown-item" id="cmd_qlow" type="button">Low</button>
+              <button class="dropdown-item" id="cmd_qmid" type="button">Mid</button>
+              <button class="dropdown-item" id="cmd_qhigh" type="button">High</button>
+              <button class="dropdown-item" id="cmd_debug" type="button">Debug</button>
+              <button class="dropdown-item" id="cmd_encodejpeg" type="button">JPEG</button>
+              <button class="dropdown-item" id="cmd_encodepng" type="button">PNG</button>
+              <button class="dropdown-item" id="cmd_encodegif" type="button">GIF</button>
+              <button class="dropdown-item" id="cmd_encodelibjpeg" type="button">Libjpeg</button>
+            </div>
+          </div>
+
+
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown"
+              aria-haspopup="true" aria-expanded="false">
+              Image
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
+              <label for="img_brightness">Brigthness</label><input type="range" class="custom-range" id="img_brightness"
+                value="0" min="-100" max="100">
+              <label for="img_saturation">Saturation</label><input type="range" class="custom-range" id="img_saturation"
+                value="0" min="-100" max="100">
+              <label for="img_contrast">Contrast</label><input type="range" class="custom-range" id="img_contrast"
+                value="0" min="-100" max="100">
+              <label for="img_blur">Blur Value</label><input type="range" class="custom-range" id="img_blur" value="0"
+                min="0" max="20">
+              <label for="img_pixel">Pixelation</label><input type="range" class="custom-range" id="img_pixel"
+                value="1.0" step="0.1" min="1.0" max="10.0">
+              <button class="dropdown-item" id="cmd_imagesettings" type="button">Apply</button>
+              <button class="dropdown-item" id="cmd_imageinvert" type="button">Toggle Invert</button>
+              <button class="dropdown-item" id="cmd_resetimagesettings" type="button">Reset</button>
+            </div>
+          </div>
+
+          <div id="spinner" class="spinner-border text-primary" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+
+        </ul>
+        <form class="form-inline mt-2 mt-md-0">
+          <button type="button" id="close" class="btn btn-secondary">Close Connection</button>
+        </form>
+      </div>
+    </nav>
   </div>
-</div>
-        <li class="nav-item">
-          <a class="nav-link" id="cmd_zoomextent"  href="#">Zoom Extents</a>
-        </li>
 
-        <div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Quality
-  </button>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-    <button class="dropdown-item" id="cmd_qlow" type="button">Low</button>
-    <button class="dropdown-item" id="cmd_qmid" type="button">Mid</button>
-    <button class="dropdown-item" id="cmd_qhigh" type="button">High</button>
-    <button class="dropdown-item" id="cmd_debug" type="button">Debug</button>
-  </div>
-</div>
+  <main role="main">
 
-
-                <div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Image
-  </button>
-  <div class="dropdown-menu" aria-labelledby="dropdownMenu2">
-    <label for="img_brightness">Brigthness</label><input type="range" class="custom-range" id="img_brightness" value="0" min="-100" max="100">
-    <label for="img_saturation">Saturation</label><input type="range" class="custom-range" id="img_saturation" value="0" min="-100" max="100">
-    <label for="img_contrast">Contrast</label><input type="range" class="custom-range" id="img_contrast" value="0" min="-100" max="100">
-    <label for="img_blur">Blur Value</label><input type="range" class="custom-range" id="img_blur" value="0" min="0" max="20">
-    <label for="img_pixel">Pixelation</label><input type="range" class="custom-range" id="img_pixel" value="1.0" step="0.1" min="1.0" max="10.0">
-    <button class="dropdown-item" id="cmd_imagesettings" type="button">Apply</button>
-    <button class="dropdown-item" id="cmd_imageinvert" type="button">Toggle Invert</button>
-    <button class="dropdown-item" id="cmd_resetimagesettings" type="button">Reset</button>
-  </div>
-</div>
-
-            <div id="spinner" class="spinner-border text-primary" role="status">
-      <span class="sr-only">Loading...</span>
-    </div> 
-    
-      </ul>
-      <form class="form-inline mt-2 mt-md-0">
-        <button type="button" id="close" class="btn btn-secondary">Close Connection</button>
-      </form>  
+    <div class="container-for-canvas">
+      <canvas id="canvas"></canvas>
     </div>
-  </nav>
-</div>
+  </main>
+  <div class="dropdown-menu dropdown-menu-sm" id="context-menu">
+    <a class="dropdown-item" id="cmd_hide" href="#">Hide</a>
+    <a class="dropdown-item" id="cmd_focus" href="#">Focus on Element</a>
+    <a class="dropdown-item" id="cmd_unhideall" href="#">Unhide all</a>
+  </div>
+  <footer class="footer mt-auto py-3">
+    <div class="container">
+      <span class="text-muted" id="selection">No selection</span>
+    </div>
+  </footer>
+  <script src="static/popper.min.js" crossorigin="anonymous"></script>
+  <script src="static/bootstrap.min.js" crossorigin="anonymous"></script>
+</body>
 
-<main role="main">
- 
-  <div class="container-for-canvas">
-    <canvas id="canvas"></canvas>
-  </div>
-</main>
-            <div class="dropdown-menu dropdown-menu-sm" id="context-menu">
-          <a class="dropdown-item" id="cmd_hide" href="#">Hide</a>
-          <a class="dropdown-item" id="cmd_focus" href="#">Focus on Element</a>
-          <a class="dropdown-item" id="cmd_unhideall"  href="#">Unhide all</a>
-        </div>
-<footer class="footer mt-auto py-3">
-  <div class="container">
-    <span class="text-muted" id="selection">No selection</span>
-  </div>
-</footer>
-    <script src="static/popper.min.js" crossorigin="anonymous"></script>
-    <script src="static/bootstrap.min.js" crossorigin="anonymous"></script>
-  </body>
 </html>

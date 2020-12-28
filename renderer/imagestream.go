@@ -4,9 +4,15 @@ import (
 	"bytes"
 	"crypto/md5"
 	"encoding/base64"
-	"github.com/disintegration/imaging"
 	"image"
+	"image/color/palette"
+	"image/gif"
 	"image/jpeg"
+	"image/png"
+
+	"github.com/moethu/imaging"
+	libjpeg "github.com/pixiv/go-libjpeg/jpeg"
+	"golang.org/x/image/draw"
 )
 
 // onRender event handler for onRender event
@@ -21,7 +27,7 @@ func (app *RenderingApp) makeScreenShot() {
 	w := app.Width
 	h := app.Height
 	data := app.Gl().ReadPixels(0, 0, w, h, 6408, 5121)
-	img := image.NewNRGBA(image.Rect(0, 0, w, h))
+	img := image.NewRGBA(image.Rect(0, 0, w, h))
 	img.Pix = data
 
 	if app.imageSettings.getPixelation() > 1.0 {
@@ -44,15 +50,33 @@ func (app *RenderingApp) makeScreenShot() {
 	}
 
 	img = imaging.FlipV(img)
-	buf := new(bytes.Buffer)
 
 	if app.Debug {
 		img = DrawByteGraph(img)
 	}
 
-	var opt jpeg.Options
-	opt.Quality = app.imageSettings.getJpegQuality()
-	jpeg.Encode(buf, img, &opt)
+	buf := new(bytes.Buffer)
+	var err interface{}
+	switch app.imageSettings.encoder {
+	case "gif":
+		pm := image.NewPaletted(img.Bounds(), palette.WebSafe)
+		draw.Draw(pm, img.Bounds(), img, image.ZP, draw.Over)
+		err = gif.Encode(buf, img, nil)
+	case "png":
+		err = png.Encode(buf, img)
+	case "libjpeg":
+		var opt libjpeg.EncoderOptions
+		opt.Quality = app.imageSettings.getJpegQuality()
+		err = libjpeg.Encode(buf, img, &opt)
+	default:
+		var opt jpeg.Options
+		opt.Quality = app.imageSettings.getJpegQuality()
+		err = jpeg.Encode(buf, img, &opt)
+	}
+
+	if err != nil {
+		panic(err)
+	}
 	imageBit := buf.Bytes()
 
 	// get md5 checksum from image to check if image changed
@@ -64,6 +88,6 @@ func (app *RenderingApp) makeScreenShot() {
 			AddToByteBuffer(len(imgBase64Str))
 		}
 		app.cImagestream <- []byte(imgBase64Str)
+		md5SumBuffer = md
 	}
-	md5SumBuffer = md
 }

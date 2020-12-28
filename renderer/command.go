@@ -229,6 +229,11 @@ func (app *RenderingApp) Quality(cmd Command) {
 	}
 }
 
+// Enocder settings
+func (app *RenderingApp) Encoder(cmd Command) {
+	app.imageSettings.encoder = cmd.Val
+}
+
 // Fov applies field of view
 func (app *RenderingApp) Fov(cmd Command) {
 	fov, err := strconv.Atoi(cmd.Val)
