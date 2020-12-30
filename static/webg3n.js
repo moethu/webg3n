@@ -22,6 +22,7 @@ window.addEventListener("load", function (evt) {
     var mouse_moved = false;
     var prev_x = undefined;
     var prev_y = undefined;
+    var sourceBuffer = undefined;
 
     spinner.style.display = 'none';
 
@@ -36,45 +37,41 @@ window.addEventListener("load", function (evt) {
 
         h = $('#canvas').height();
         w = $('#canvas').width();
-        console.log(h, w)
+        
+        window.URL = window.URL || window.webkitURL;
+        window.MediaSource = window.MediaSource || window.WebKitMediaSource;
+
+        if(!!! window.MediaSource)
+        {
+            alert('MediaSource API is not available!');
+            return;
+        }
+
+        var mediaSource = new MediaSource(); 
+        var video = document.getElementById('v');
+        video.src = window.URL.createObjectURL(mediaSource);
+        
         ws = new WebSocket(`${host}?h=${h}&w=${w}`);
 
-        ws.onopen = function (evt) {
-            print("Connected to Server");
-        }
-        ws.onclose = function (evt) {
-            print("Closed Connection");
-            ws = null;
-        }
-        ws.onmessage = function (evt) {
-            if (evt.data.startsWith('{') && evt.data.endsWith('}')) {
-                var feedback = JSON.parse(evt.data);
-                print(evt.data)
-                if (feedback.action == "loaded") {
-                    spinner.style.display = 'none';
+        mediaSource.onsourceopen = () => {
+            sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs=vp8');
+            ws.onmessage = function (evt) {
+                if (!sourceBuffer.updating) {
+                    sourceBuffer.appendBuffer(new Uint8Array(evt.data));
                 }
-                if (feedback.action == "loading") {
-                    spinner.style.display = 'block';
-                }
-                if (feedback.action == "selected") {
-                    if (feedback.value == "") {
-                        selection_ui.innerHTML = "No selection"
-                    } else {
-                        selection_ui.innerHTML = `Selected Node <span class="badge badge-secondary">${feedback.value}</span>`;
-                    }
-                }
-            } else {
-                var ctx = document.getElementById('canvas').getContext('2d');
-                var img = new Image(w, h);
-                img.onload = function () {
-                    ctx.drawImage(img, 0, 0, w, h);
-                };
-                img.src = 'data:image/jpeg;base64,' + evt.data;
             }
-        }
-        ws.onerror = function (evt) {
-            print("Error: " + evt.data);
-        }
+            ws.onopen = function (evt) {
+                print("Connected to Server");
+            }
+            ws.onclose = function (evt) {
+                print("Closed Connection");
+                ws = null;
+            }
+            ws.onerror = function (evt) {
+                print("Error: " + evt.data);
+            }
+        };
+
         return false;
     };
 
