@@ -1,15 +1,13 @@
 package renderer
 
 import (
-	"bytes"
 	"crypto/md5"
 	"encoding/base64"
 	"image"
-	"image/jpeg"
-	"image/png"
+	"log"
 
 	"github.com/moethu/imaging"
-	libjpeg "github.com/pixiv/go-libjpeg/jpeg"
+	"github.com/moethu/webg3n/encoders"
 )
 
 // onRender event handler for onRender event
@@ -18,6 +16,8 @@ func (app *RenderingApp) onRender(evname string, ev interface{}) {
 }
 
 var md5SumBuffer [16]byte
+var es encoders.Service
+var e encoders.Encoder
 
 // makeScreenShot reads the opengl buffer, encodes it as jpeg and sends it to the channel
 func (app *RenderingApp) makeScreenShot() {
@@ -52,31 +52,19 @@ func (app *RenderingApp) makeScreenShot() {
 		img = DrawByteGraph(img)
 	}
 
-	buf := new(bytes.Buffer)
-	var err interface{}
-	switch app.imageSettings.encoder {
-	case "png":
-		err = png.Encode(buf, img)
-	case "jpeg":
-		var opt jpeg.Options
-		opt.Quality = app.imageSettings.getJpegQuality()
-		err = jpeg.Encode(buf, img, &opt)
-	default:
-		var opt libjpeg.EncoderOptions
-		opt.Quality = app.imageSettings.getJpegQuality()
-		err = libjpeg.Encode(buf, img, &opt)
+	if es == nil {
+		es = encoders.NewEncoderService()
+		e, _ = es.NewEncoder(encoders.VP8Codec, image.Point{X: w, Y: h}, 20)
 	}
 
+	d, err := e.Encode(img)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 	}
-	imageBit := buf.Bytes()
 
-	// get md5 checksum from image to check if image changed
-	// only send a new image to the client if there has been any change.
-	md := md5.Sum(imageBit)
+	md := md5.Sum(d)
 	if md5SumBuffer != md {
-		imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))
+		imgBase64Str := base64.StdEncoding.EncodeToString([]byte(d))
 		if app.Debug {
 			AddToByteBuffer(len(imgBase64Str))
 		}
