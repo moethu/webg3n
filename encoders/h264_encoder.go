@@ -1,5 +1,3 @@
-// +build h264enc
-
 package encoders
 
 import (
@@ -20,7 +18,7 @@ type H264Encoder struct {
 
 const h264SupportedProfile = "3.1"
 
-func newH264Encoder(size image.Point, frameRate int) (Encoder, error) {
+func NewH264Encoder(size image.Point, frameRate int) (Encoder, error) {
 	buffer := bytes.NewBuffer(make([]byte, 0))
 	realSize, err := findBestSizeForH264Profile(h264SupportedProfile, size)
 	if err != nil {
@@ -104,5 +102,5 @@ func findBestSizeForH264Profile(profile string, constraints image.Point) (image.
 }
 
 func init() {
-	registeredEncoders[H264Codec] = newH264Encoder
+	registeredEncoders[H264Codec] = NewH264Encoder
 }

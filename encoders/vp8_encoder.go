@@ -1,5 +1,3 @@
-// +build vp8enc
-
 package encoders
 
 import (
@@ -128,7 +126,7 @@ type VP8Encoder struct {
 	// vpxCodexIter C.vpx_codec_iter_t
 }
 
-func newVP8Encoder(size image.Point, frameRate int) (Encoder, error) {
+func NewVP8Encoder(size image.Point, frameRate int) (Encoder, error) {
 	buffer := bytes.NewBuffer(make([]byte, 0))
 
 	var cfg C.vpx_codec_enc_cfg_t
@@ -202,5 +200,5 @@ func (e *VP8Encoder) Close() error {
 }
 
 func init() {
-	registeredEncoders[VP8Codec] = newVP8Encoder
+	registeredEncoders[VP8Codec] = NewVP8Encoder
 }
