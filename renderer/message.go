@@ -17,5 +17,5 @@ func (app *RenderingApp) sendMessageToClient(action string, value string) {
 		return
 	}
 	app.Log().Info("sending message: " + string(msgJSON))
-	app.cImagestream <- []byte(string(msgJSON))
+	//app.cData <- []byte(string(msgJSON))
 }
