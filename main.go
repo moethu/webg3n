@@ -12,9 +12,9 @@ import (
 	"time"
 
 	"github.com/g3n/engine/window"
-
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	_ "github.com/moethu/webg3n/encoders"
 )
 
 func main() {
