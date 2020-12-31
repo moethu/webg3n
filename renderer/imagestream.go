@@ -1,8 +1,6 @@
 package renderer
 
 import (
-	"crypto/md5"
-	"encoding/base64"
 	"image"
 	"log"
 
@@ -62,13 +60,5 @@ func (app *RenderingApp) makeScreenShot() {
 		log.Println(err)
 	}
 
-	md := md5.Sum(d)
-	if md5SumBuffer != md {
-		imgBase64Str := base64.StdEncoding.EncodeToString([]byte(d))
-		if app.Debug {
-			AddToByteBuffer(len(imgBase64Str))
-		}
-		app.cImagestream <- []byte(imgBase64Str)
-		md5SumBuffer = md
-	}
+	app.cImagestream <- d
 }

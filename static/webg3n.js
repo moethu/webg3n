@@ -57,7 +57,10 @@ window.addEventListener("load", function (evt) {
             sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs=vp8');
             ws.onmessage = function (evt) {
                 if (!sourceBuffer.updating) {
-                    sourceBuffer.appendBuffer(new Uint8Array(evt.data));
+                    new Response(evt.data).arrayBuffer().then(buffer=> {
+                        sourceBuffer.appendBuffer(buffer)
+                        //sourceBuffer.appendBuffer(new Uint8Array(buffer))
+                    })
                 }
             }
             ws.onopen = function (evt) {
