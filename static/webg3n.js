@@ -22,7 +22,6 @@ window.addEventListener("load", function (evt) {
     var mouse_moved = false;
     var prev_x = undefined;
     var prev_y = undefined;
-    var sourceBuffer = undefined;
 
     spinner.style.display = 'none';
 
@@ -38,30 +37,26 @@ window.addEventListener("load", function (evt) {
         h = $('#canvas').height();
         w = $('#canvas').width();
         
-        window.URL = window.URL || window.webkitURL;
-        window.MediaSource = window.MediaSource || window.WebKitMediaSource;
 
-        if(!!! window.MediaSource)
-        {
-            alert('MediaSource API is not available!');
-            return;
-        }
+        var jmuxer = new JMuxer({
+            node: 'player',
+            mode: 'video',
+            flushingTime: 1000,
+            fps: 30,
+            debug: true
+         });
 
-        var mediaSource = new MediaSource(); 
-        var video = document.getElementById('v');
-        video.src = window.URL.createObjectURL(mediaSource);
-        
         ws = new WebSocket(`${host}?h=${h}&w=${w}`);
-
-        mediaSource.onsourceopen = () => {
-            sourceBuffer = mediaSource.addSourceBuffer('video/webm; codecs=vp8');
+        ws.binaryType = 'arraybuffer';
             ws.onmessage = function (evt) {
-                if (!sourceBuffer.updating) {
-                    new Response(evt.data).arrayBuffer().then(buffer=> {
-                        sourceBuffer.appendBuffer(buffer)
+               
+                   // new Response(evt.data).arrayBuffer().then(buffer=> {
+                        jmuxer.feed({
+                            video: new Uint8Array(evt.data)
+                          });
                         //sourceBuffer.appendBuffer(new Uint8Array(buffer))
-                    })
-                }
+                   // })
+               
             }
             ws.onopen = function (evt) {
                 print("Connected to Server");
@@ -73,7 +68,6 @@ window.addEventListener("load", function (evt) {
             ws.onerror = function (evt) {
                 print("Error: " + evt.data);
             }
-        };
 
         return false;
     };

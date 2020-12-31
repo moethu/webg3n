@@ -52,7 +52,7 @@ func (app *RenderingApp) makeScreenShot() {
 
 	if es == nil {
 		es = encoders.NewEncoderService()
-		e, _ = es.NewEncoder(encoders.VP8Codec, image.Point{X: w, Y: h}, 20)
+		e, _ = es.NewEncoder(encoders.H264Codec, image.Point{X: w, Y: h}, 20)
 	}
 
 	d, err := e.Encode(img)
