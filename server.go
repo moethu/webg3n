@@ -74,7 +74,7 @@ func (c *Client) streamWriter() {
 
 			// NextWriter returns a writer for the next message to send.
 			// The writer's Close method flushes the complete message to the network.
-			w, err := c.conn.NextWriter(websocket.TextMessage)
+			w, err := c.conn.NextWriter(websocket.BinaryMessage)
 			if err != nil {
 				return
 			}

@@ -3,7 +3,6 @@ package renderer
 import (
 	"bytes"
 	"crypto/md5"
-	"encoding/base64"
 	"image"
 	"image/jpeg"
 	"image/png"
@@ -76,11 +75,10 @@ func (app *RenderingApp) makeScreenShot() {
 	// only send a new image to the client if there has been any change.
 	md := md5.Sum(imageBit)
 	if md5SumBuffer != md {
-		imgBase64Str := base64.StdEncoding.EncodeToString([]byte(imageBit))
 		if app.Debug {
-			AddToByteBuffer(len(imgBase64Str))
+			AddToByteBuffer(len(imageBit))
 		}
-		app.cImagestream <- []byte(imgBase64Str)
+		app.cImagestream <- imageBit
 		md5SumBuffer = md
 	}
 }
