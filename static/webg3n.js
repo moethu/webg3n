@@ -47,30 +47,20 @@ window.addEventListener("load", function (evt) {
             ws = null;
         }
         ws.onmessage = function (evt) {
-            if (evt.data.startsWith('{') && evt.data.endsWith('}')) {
-                var feedback = JSON.parse(evt.data);
-                print(evt.data)
-                if (feedback.action == "loaded") {
-                    spinner.style.display = 'none';
-                }
-                if (feedback.action == "loading") {
-                    spinner.style.display = 'block';
-                }
-                if (feedback.action == "selected") {
-                    if (feedback.value == "") {
-                        selection_ui.innerHTML = "No selection"
-                    } else {
-                        selection_ui.innerHTML = `Selected Node <span class="badge badge-secondary">${feedback.value}</span>`;
-                    }
-                }
-            } else {
+            new Response(evt.data).arrayBuffer().then(buffer=> {
+            
                 var ctx = document.getElementById('canvas').getContext('2d');
                 var img = new Image(w, h);
                 img.onload = function () {
                     ctx.drawImage(img, 0, 0, w, h);
                 };
-                img.src = 'data:image/jpeg;base64,' + evt.data;
-            }
+                var arrayBufferView = new Uint8Array( buffer );
+                var blob = new Blob( [ arrayBufferView ], { type: "image/jpeg" } );
+                var urlCreator = window.URL || window.webkitURL;
+                var imageUrl = urlCreator.createObjectURL( blob );
+                img.src = imageUrl;
+            })
+
         }
         ws.onerror = function (evt) {
             print("Error: " + evt.data);
