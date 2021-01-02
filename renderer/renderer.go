@@ -90,7 +90,7 @@ func LoadRenderingApp(app *RenderingApp, sessionId string, h int, w int, write c
 		Fullscreen:  false,
 		LogPrefix:   sessionId,
 		LogLevel:    logger.DEBUG,
-		TargetFPS:   30,
+		TargetFPS:   20,
 		EnableFlags: true,
 	})
 

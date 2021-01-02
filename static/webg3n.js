@@ -41,9 +41,9 @@ window.addEventListener("load", function (evt) {
         var jmuxer = new JMuxer({
             node: 'player',
             mode: 'video',
-            flushingTime: 1000,
-            fps: 30,
-            debug: true
+            flushingTime: 1,
+            fps: 20,
+            debug: false
          });
 
         ws = new WebSocket(`${host}?h=${h}&w=${w}`);
