@@ -49,14 +49,7 @@ window.addEventListener("load", function (evt) {
         ws = new WebSocket(`${host}?h=${h}&w=${w}`);
         ws.binaryType = 'arraybuffer';
             ws.onmessage = function (evt) {
-               
-                   // new Response(evt.data).arrayBuffer().then(buffer=> {
-                        jmuxer.feed({
-                            video: new Uint8Array(evt.data)
-                          });
-                        //sourceBuffer.appendBuffer(new Uint8Array(buffer))
-                   // })
-               
+                jmuxer.feed({video: new Uint8Array(evt.data)});               
             }
             ws.onopen = function (evt) {
                 print("Connected to Server");
