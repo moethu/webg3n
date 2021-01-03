@@ -30,9 +30,3 @@ main > .container {
     font-size: 80%;
   }
 
-  #canvas {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 10;
-  }

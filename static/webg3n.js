@@ -36,7 +36,16 @@ window.addEventListener("load", function (evt) {
 
         h = $('#canvas').height();
         w = $('#canvas').width();
-        
+
+        var vid = document.getElementById("player");
+        var rect = canvas.getBoundingClientRect()
+        vid.style.position = "absolute"
+        vid.style.top = canvas.offsetTop + "px";
+        vid.style.left = canvas.offsetLeft + "px";
+        vid.style.height = h
+        vid.style.width = w
+        vid.style.zIndex = "-10"
+
 
         var jmuxer = new JMuxer({
             node: 'player',
