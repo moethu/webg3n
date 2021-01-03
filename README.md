@@ -25,6 +25,14 @@ Client and server side renderers have both pros and cons. Depending on your use 
 
 On the other hand it shifts the bottleneck from the client's rendering capabilites to the bandwith.
 
+## Image Streaming Approaches
+
+This project has various branches to investigate different streaming approaches:
+
+- The default branch `master` streams base64 encoded image contents. This works very fast and has very little delay.
+- The `binary-image-transfer` branch streams binary image content (uint8Array). Slightly less data to transfer but adds some delay.
+- The `video-jmux` branch streams H264 encoded video stream to a video tag (also as uint8Array) using [jmuxer](https://github.com/samirkumardas/jmuxer). Image transitions are very smooth but this also adds some delay. 
+
 ## Dependencies and Installation
 
 ### Docker
