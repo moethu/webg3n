@@ -3,7 +3,7 @@ module github.com/moethu/webg3n
 require (
 	github.com/dsnet/compress v0.0.1 // indirect
 	github.com/g3n/engine v0.1.0
-	github.com/gin-gonic/gin v1.6.3
+	github.com/gin-gonic/gin v1.7.0
 	github.com/golang/snappy v0.0.2 // indirect
 	github.com/gorilla/websocket v1.4.2
 	github.com/llgcode/draw2d v0.0.0-20200603164053-19660b984a28
